@@ -1,0 +1,109 @@
+# Docker Compose file for Off-Library microservices architecture
+name: off_library_microservices
+
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    ports:
+      - "9000:9000"
+    expose:
+      - 9000
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - off_library_network
+
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: off_library
+      POSTGRES_PASSWORD: off_library_password
+      POSTGRES_DB: off_library_db
+    ports:
+      - "55432:5432"
+    expose:
+      - 5432
+    volumes:
+      - off_library_postgres:/var/lib/postgresql/data
+    networks:
+      - off_library_network
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.4.3
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - off_library_network
+
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.3
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
+    networks:
+      - off_library_network
+
+  gateway:
+    container_name: gateway
+    build:
+      context: ../
+      dockerfile: apps/gateway/Dockerfile
+      args:
+        PORT: 8002
+    image: off_library/api-gateway
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    expose:
+      - 8002
+    env_file:
+      - ../apps/gateway/.env
+    networks:
+      - off_library_network
+
+  library:
+    container_name: library
+    build:
+      context: ../
+      dockerfile: apps/library/Dockerfile
+      args:
+        PORT: 8003
+    image: off_library/api-library
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    expose:
+      - 8003
+    env_file:
+      - ../apps/library/.env
+    networks:
+      - off_library_network
+
+volumes:
+  off_library_postgres:
+    driver: local
+
+networks:
+  off_library_network:
+    driver: bridge

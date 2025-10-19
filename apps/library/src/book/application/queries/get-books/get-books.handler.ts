@@ -6,6 +6,6 @@ export class GetBooksHandler implements IQueryHandler<GetBooksQuery> {
     constructor() { }
 
     async execute(query: GetBooksQuery): Promise<string> {
-        return 'This action returns all books';
+        return 'This action returns all books!!';
     }
 }

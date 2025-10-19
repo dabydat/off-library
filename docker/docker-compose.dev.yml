@@ -1,0 +1,145 @@
+# Docker Compose file for Off-Library microservices architecture
+name: off_library_microservices
+
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    ports:
+      - "9000:9000"
+    expose:
+      - 9000
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - off_library_network
+
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: off_library
+      POSTGRES_PASSWORD: off_library_password
+      POSTGRES_DB: off_library_db
+    ports:
+      - "55432:5432"
+    expose:
+      - 5432
+    volumes:
+      - off_library_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U off_library -d off_library_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - off_library_network
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.4.3
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - off_library_network
+
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.3
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
+    healthcheck:
+      test: nc -z localhost 9092
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - off_library_network
+
+  gateway:
+    container_name: gateway
+    build:
+      context: ../
+      dockerfile: apps/gateway/Dockerfile
+      target: development
+      args:
+        PORT: 8000
+    image: off_library/api-gateway:dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    env_file:
+      - ../apps/gateway/.env
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ../apps/gateway:/app/apps/gateway
+      - ../libs/common-core:/app/libs/common-core
+      - /app/node_modules
+    networks:
+      - off_library_network
+    command: npm run start:dev gateway
+
+  library:
+    container_name: library
+    build:
+      context: ../
+      dockerfile: apps/library/Dockerfile
+      target: development
+      args:
+        PORT: 8001
+    image: off_library/api-library:dev
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    expose:
+      - 8001
+    env_file:
+      - ../apps/library/.env
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ../apps/library:/app/apps/library
+      - ../libs/common-core:/app/libs/common-core
+      - /app/node_modules
+    networks:
+      - off_library_network
+    command: npm run start:dev library
+
+volumes:
+  off_library_postgres:
+    driver: local
+
+networks:
+  off_library_network:
+    driver: bridge

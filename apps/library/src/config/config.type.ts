@@ -56,12 +56,14 @@ export type ConfigSchema = {
   NODE_ENV: string;
   PORT: string;
   HOST: string;
-  // DATABASE_TYPE: string;
-  // DATABASE_HOST: string;
-  // DATABASE_PORT: number;
-  // DATABASE_USERNAME: string;
-  // DATABASE_PASSWORD: string;
-  // DATABASE_NAME: string;
+  DATABASE_TYPE: string;
+  DATABASE_HOST: string;
+  DATABASE_PORT: number;
+  DATABASE_USERNAME: string;
+  DATABASE_PASSWORD: string;
+  DATABASE_NAME: string;
+  KAFKA_BROKER: string;
+  KAFKA_CLIENT_ID: string;
 };
 
 export type ConfigEnvironment = {
@@ -69,6 +71,10 @@ export type ConfigEnvironment = {
     port: number;
     host: string;
   };
-  // database: DatabaseConfig;
+  database: DatabaseConfig;
   environment: NodeEnvType;
+  kafka: {
+    broker: string;
+    clientId: string;
+  };
 };

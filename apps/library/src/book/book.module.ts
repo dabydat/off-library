@@ -12,7 +12,7 @@ import { KafkaService } from './infrastructure/queue/kafka.service';
 
 @Module({
     imports: [
-        // DatabaseModule,
+        DatabaseModule,
         CqrsModule,
     ],
     controllers: [BookController],
