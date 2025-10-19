@@ -1,0 +1,10 @@
+{
+  "errors": {
+    "vo": {
+      "emptyName": "El nombre del libro no puede estar vacío"
+    },
+    "domain": {
+      "notFound": "Libro no encontrado."
+    }
+  }
+}

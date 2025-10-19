@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "common-core": {
+      "type": "library",
+      "root": "libs/common-core",
+      "entryFile": "index",
+      "sourceRoot": "libs/common-core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common-core/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}
