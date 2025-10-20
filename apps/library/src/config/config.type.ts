@@ -45,11 +45,10 @@ export const nodeEnvTypes: NodeEnvType[] = ['development', 'production', 'qa'];
 
 export type DatabaseConfig = {
   type: DatabaseType;
-  host: string;
-  port: number;
-  username: string;
-  password: string;
   database: string;
+  logQueries: boolean;
+  synchronize: boolean;
+  encryptionKey: string;
 };
 
 export type ConfigSchema = {
@@ -57,11 +56,10 @@ export type ConfigSchema = {
   PORT: string;
   HOST: string;
   DATABASE_TYPE: string;
-  DATABASE_HOST: string;
-  DATABASE_PORT: number;
-  DATABASE_USERNAME: string;
-  DATABASE_PASSWORD: string;
   DATABASE_NAME: string;
+  DATABASE_LOG_QUERIES: boolean;
+  DATABASE_SYNCHRONIZE: boolean;
+  DATABASE_ENCRYPTION_KEY: string;
   KAFKA_BROKER: string;
   KAFKA_CLIENT_ID: string;
 };

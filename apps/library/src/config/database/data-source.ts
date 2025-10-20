@@ -1,24 +1,20 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DatabaseType, DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
 
 import { UppercaseSnakeNamingStrategy } from './naming-strategy.config';
 
-config({ path: './apps/merchant/.env' });
+config({ path: './apps/library/.env' });
 
-const databasePort = process.env.DATABASE_PORT
-    ? parseInt(process.env.DATABASE_PORT, 10)
-    : 3306;
+const dataDir = process.env.DATABASE_PATH || path.join(process.cwd(), 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 export const databaseConfig: DataSourceOptions = {
     migrationsTableName: 'MIGRATIONS',
     namingStrategy: new UppercaseSnakeNamingStrategy(),
     type: process.env.DATABASE_TYPE as any,
-    host: process.env.DATABASE_HOST,
-    port: databasePort,
-    username: process.env.DATABASE_USERNAME,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
+    database: path.join(dataDir, process.env.DATABASE_NAME || 'off_library.db'),
     migrations: [
         path.join(
             __dirname,
@@ -32,8 +28,7 @@ export const databaseConfig: DataSourceOptions = {
         ),
     ],
     synchronize: false,
-    logging: true,
-    timezone: 'Z',
+    logging: process.env.DATABASE_LOG_QUERIES === 'true'
 };
 
 export const AppDataSource = new DataSource(databaseConfig);
