@@ -105,8 +105,7 @@ services:
     volumes:
       - ../apps/library:/app/apps/library
       - ../libs/common-core:/app/libs/common-core
-      - sqlite_data:/app/data
-      - sqlite_backups:/app/backups
+      - ../data:/app/data
       - /app/node_modules
     networks:
       - off_library_network
@@ -118,7 +117,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - sqlite_data:/db
+      - ../data:/db
     command: off_library.db
     networks:
       - off_library_network
@@ -126,8 +125,6 @@ services:
       - library
 
 volumes:
-  sqlite_data:
-    driver: local
   sqlite_backups:
     driver: local
   off_library_postgres:

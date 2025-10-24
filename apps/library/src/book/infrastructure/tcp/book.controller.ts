@@ -12,7 +12,7 @@ export class BookController {
     ) { }
 
     @MessagePattern(LibraryControllerMap.GET_BOOKS.MESSAGE_PATTERN)
-    getBooks() {
-        return this.queryBus.execute(new GetBooksQuery());
+    public async getBooks(): Promise<any> {
+        return await this.queryBus.execute(new GetBooksQuery());
     }
 }

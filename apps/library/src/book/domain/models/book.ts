@@ -1,0 +1,54 @@
+import { AggregateRoot } from "@nestjs/cqrs";
+import { BookAuthor, BookGenre, BookGenreEnum, BookISBN, BookLanguage, BookLanguageEnum, BookName, BookPublisher, BookSummary } from "../value-objects";
+import { TinyIntVO, UtcDate, Uuid } from "@app/common-core/domain/value-objects";
+
+export type BookPrimitives = {
+    id: string;
+    name: string;
+    author: string;
+    isbn: string;
+    publisher: string;
+    publicationDate: string;
+    genre: BookGenreEnum;
+    pages: number;
+    language: BookLanguageEnum;
+    summary?: string;
+    createdAt?: string;
+    updatedAt?: string;
+};
+
+export class Book extends AggregateRoot {
+    constructor(
+        private readonly id: Uuid,
+        private readonly name: BookName,
+        private readonly author: BookAuthor,
+        private readonly isbn: BookISBN,
+        private readonly publisher: BookPublisher,
+        private readonly publicationDate: UtcDate,
+        private readonly genre: BookGenre,
+        private readonly pages: TinyIntVO,
+        private readonly language: BookLanguage,
+        private readonly summary?: BookSummary,
+        private readonly createdAt?: UtcDate,
+        private readonly updatedAt?: UtcDate
+    ) {
+        super();
+    }
+
+    public toPrimitives(): BookPrimitives {
+        return {
+            id: this.id.getValue,
+            name: this.name.getValue,
+            author: this.author.getValue,
+            isbn: this.isbn.getValue,
+            publisher: this.publisher.getValue,
+            publicationDate: this.publicationDate.toISOString,
+            genre: this.genre.getValue,
+            pages: this.pages.getValue,
+            language: this.language.getValue,
+            summary: this.summary?.getValue,
+            createdAt: this.createdAt?.toISOString,
+            updatedAt: this.updatedAt?.toISOString
+        };
+    }
+}

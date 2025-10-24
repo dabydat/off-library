@@ -14,7 +14,7 @@ RUN npm install
 ARG PORT=8000
 EXPOSE ${PORT}
 
-CMD ["npm", "run", "start:dev", "gateway"]
+CMD ["nodemon", "--watch", "apps/gateway", "--watch", "apps/gateway/main.ts"]
 
 FROM node:${NODE_VERSION} AS builder
 

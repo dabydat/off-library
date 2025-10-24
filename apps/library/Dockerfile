@@ -20,7 +20,7 @@ RUN mkdir -p /app/data /app/backups && \
 ARG PORT=8001
 EXPOSE ${PORT}
 
-CMD ["npm", "run", "start:dev", "library"]
+CMD ["nodemon", "--watch", "apps/library", "--watch", "libs/common-core", "apps/library/main.ts"]
 
 FROM node:${NODE_VERSION} AS builder
 
