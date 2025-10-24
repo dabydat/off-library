@@ -15,28 +15,6 @@ services:
     networks:
       - off_library_network
 
-  postgres-db:
-    container_name: postgres-db
-    image: postgres:15
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: off_library
-      POSTGRES_PASSWORD: off_library_password
-      POSTGRES_DB: off_library_db
-    ports:
-      - "55432:5432"
-    expose:
-      - 5432
-    volumes:
-      - off_library_postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U off_library -d off_library_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - off_library_network
-
   zookeeper:
     container_name: zookeeper
     image: confluentinc/cp-zookeeper:7.4.3
@@ -93,8 +71,6 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      postgres-db:
-        condition: service_healthy
       kafka:
         condition: service_healthy
     volumes:
@@ -124,19 +100,36 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      postgres-db:
-        condition: service_healthy
       kafka:
         condition: service_healthy
     volumes:
       - ../apps/library:/app/apps/library
       - ../libs/common-core:/app/libs/common-core
+      - sqlite_data:/app/data
+      - sqlite_backups:/app/backups
       - /app/node_modules
     networks:
       - off_library_network
     command: npm run start:dev library
 
+  sqliteweb:
+    container_name: sqliteweb
+    image: tomdesinto/sqliteweb
+    ports:
+      - "8080:8080"
+    volumes:
+      - sqlite_data:/db
+    command: off_library.db
+    networks:
+      - off_library_network
+    depends_on:
+      - library
+
 volumes:
+  sqlite_data:
+    driver: local
+  sqlite_backups:
+    driver: local
   off_library_postgres:
     driver: local
 

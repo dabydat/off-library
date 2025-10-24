@@ -4,12 +4,18 @@ FROM node:${NODE_VERSION} AS development
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
+
 COPY package.json .
 COPY tsconfig.build.json .
 COPY tsconfig.json .
 COPY nest-cli.json .
 
 RUN npm install
+
+# Crear directorios para SQLite
+RUN mkdir -p /app/data /app/backups && \
+    chmod 777 /app/data /app/backups
 
 ARG PORT=8001
 EXPOSE ${PORT}
@@ -39,6 +45,10 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+
+# Crear directorios para SQLite en producción
+RUN mkdir -p /app/data /app/backups && \
+    chmod 777 /app/data /app/backups
 
 ARG PORT=8001
 EXPOSE ${PORT}

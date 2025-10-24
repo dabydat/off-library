@@ -12,11 +12,10 @@ export default (): ConfigEnvironment => {
     environment: value.NODE_ENV as NodeEnvType,
     database: {
       type: value.DATABASE_TYPE as DatabaseType,
-      host: value.DATABASE_HOST,
-      port: +value.DATABASE_PORT,
-      username: value.DATABASE_USERNAME,
-      password: value.DATABASE_PASSWORD,
       database: value.DATABASE_NAME,
+      logQueries: value.DATABASE_LOG_QUERIES,
+      synchronize: value.DATABASE_SYNCHRONIZE,
+      encryptionKey: value.DATABASE_ENCRYPTION_KEY,
     },
     kafka: {
       broker: value.KAFKA_BROKER,
