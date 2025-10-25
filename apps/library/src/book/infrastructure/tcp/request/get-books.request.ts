@@ -1,6 +1,4 @@
-import { IQuery } from '@nestjs/cqrs';
-
-export class GetBooksQuery implements IQuery {
+export class GetBooksRequest {
     constructor(
         public readonly limit: number,
         public readonly page: number,

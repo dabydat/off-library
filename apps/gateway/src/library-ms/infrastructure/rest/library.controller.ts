@@ -2,9 +2,13 @@ import { LibraryControllerMap } from '@app/common-core/domain/constants/library.
 import { ClientConstant } from '@app/common-core/infrastructure/constants/client.constants';
 import { ApiOkResponsePaginated } from '@app/common-core/infrastructure/decorators/api-ok-response-paginated.decorator';
 import { ErrorResponse } from '@app/common-core/infrastructure/rest/error.response';
-import { Controller, Get, HttpCode, HttpStatus, Inject } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOperation, ApiTooManyRequestsResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { GetBooksRequest } from './request/get-books.request';
+import { DomainPagination } from '@app/common-core/domain/types/domain-pagination.type';
+import { firstValueFrom } from 'rxjs';
+import { GetBooksResponse } from './response/get-books.response';
 
 @Controller('library')
 export class LibraryController {
@@ -15,8 +19,8 @@ export class LibraryController {
 
     @Get(LibraryControllerMap.GET_BOOKS.ROUTE)
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ description: 'Get services' })
-    @ApiOkResponsePaginated({ type: String })
+    @ApiOperation({ description: 'Get Books' })
+    @ApiOkResponsePaginated({ type: GetBooksResponse, description: 'List of books retrieved successfully' })
     @ApiBadRequestResponse({
         description: 'Invalid request parameters',
         type: ErrorResponse,
@@ -37,7 +41,7 @@ export class LibraryController {
         description: 'Too many requests - rate limit exceeded',
         type: ErrorResponse,
     })
-    getBooks() {
-        return this.libraryClient.send(LibraryControllerMap.GET_BOOKS.MESSAGE_PATTERN, {});
+    async getBooks(@Query() query: GetBooksRequest): Promise<DomainPagination<GetBooksResponse>> {
+        return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.GET_BOOKS.MESSAGE_PATTERN, query));
     }
 }

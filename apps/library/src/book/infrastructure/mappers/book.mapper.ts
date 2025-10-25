@@ -3,6 +3,7 @@ import { TinyIntVO, UtcDate, Uuid } from '@app/common-core/domain/value-objects'
 import { Book } from '../../domain/models/book';
 import { BookEntity } from '../persistence/entities/book.entity';
 import { BookAuthor, BookGenre, BookISBN, BookLanguage, BookName, BookPublisher, BookSummary } from '../../domain/value-objects';
+import { BookResponse } from '../tcp/response/book.response';
 
 export class BookMapper {
     public static toBook(bookEntities: BookEntity[]): Book[] {
@@ -24,4 +25,21 @@ export class BookMapper {
         });
     }
 
+    public static toBookResponse(book: Book): BookResponse {
+        const bookPrimitives = book.toPrimitives();
+        return {
+            id: bookPrimitives.id,
+            name: bookPrimitives.name,
+            author: bookPrimitives.author,
+            isbn: bookPrimitives.isbn,
+            publisher: bookPrimitives.publisher,
+            publicationDate: bookPrimitives.publicationDate,
+            genre: bookPrimitives.genre,
+            pages: bookPrimitives.pages,
+            language: bookPrimitives.language,
+            summary: bookPrimitives.summary,
+            createdAt: bookPrimitives.createdAt,
+            updatedAt: bookPrimitives.updatedAt
+        }
+    }
 }

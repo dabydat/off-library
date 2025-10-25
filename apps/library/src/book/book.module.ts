@@ -9,10 +9,10 @@ import { TRANSACTION_EXECUTION_PORT } from './domain/ports/transaction-execution
 import { TransactionExecutionAdapter } from './infrastructure/adapters/transaction-execution.adapter';
 import { QUEUE_SERVICE } from '@app/common-core/domain/services/queue.service';
 import { KafkaService } from './infrastructure/queue/kafka.service';
-import { BOOK_REPOSITORY } from './domain/repositories/book.repository';
-import { BookRepositoryImpl } from './infrastructure/persistence/repositories/book.repository.impl';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookEntity } from './infrastructure/persistence/entities/book.entity';
+import { BOOK_REPOSITORY } from './domain/ports/book-repository.port';
+import { BookRepositoryAdapter } from './infrastructure/adapters/book.repository.adapter';
 
 @Module({
     imports: [
@@ -37,7 +37,7 @@ import { BookEntity } from './infrastructure/persistence/entities/book.entity';
         },
         {
             provide: BOOK_REPOSITORY,
-            useClass: BookRepositoryImpl,
+            useClass: BookRepositoryAdapter,
         }
     ],
 })
