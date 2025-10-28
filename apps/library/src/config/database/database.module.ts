@@ -10,7 +10,10 @@ import { DatabaseType } from '../config.type';
             inject: [ConfigService],
             useFactory: (config: ConfigService): TypeOrmModuleOptions => ({
                 type: config.get('database.type') as DatabaseType,
-                database: config.get('database.database') as string,
+                database: require('path').join(
+                    config.get('DATABASE_PATH') || './data',
+                    config.get('DATABASE_NAME') || 'off_library.db'
+                ) as string,
                 autoLoadEntities: true,
                 logging: config.get('database.logQueries') as boolean,
                 synchronize: config.get('database.synchronize') as boolean,

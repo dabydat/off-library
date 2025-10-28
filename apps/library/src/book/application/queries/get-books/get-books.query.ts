@@ -1,5 +1,8 @@
 import { IQuery } from '@nestjs/cqrs';
 
 export class GetBooksQuery implements IQuery {
-    constructor() { }
+    constructor(
+        public readonly limit: number,
+        public readonly page: number,
+    ) { }
 }

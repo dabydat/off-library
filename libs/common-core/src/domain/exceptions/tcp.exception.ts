@@ -1,4 +1,4 @@
-import { RpcException } from "@nestjs/microservices";
+import { RpcException } from '@nestjs/microservices';
 
 export interface ErrorDetail {
     message: string;

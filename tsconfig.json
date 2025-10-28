@@ -29,5 +29,9 @@
         "libs/common-core/src/*"
       ]
     }
+  },
+  "watchOptions": {
+    "watchFile": "dynamicprioritypolling",
+    "watchDirectory": "dynamicprioritypolling"
   }
 }

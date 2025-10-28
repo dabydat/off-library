@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { GatewayController } from './gateway.controller';
-import { GatewayService } from './gateway.service';
 import { ConfigModule } from '@nestjs/config';
 import configEnvironment from './config';
 import { configValidation } from './config/config-validation';
 import { LibraryMsModule } from './library-ms/library-ms.module';
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalExceptionFilter } from '@app/common-core/infrastructure/filters/global-exception.filter';
 
 @Module({
   imports: [
@@ -16,7 +16,12 @@ import { LibraryMsModule } from './library-ms/library-ms.module';
     }),
     LibraryMsModule
   ],
-  controllers: [GatewayController],
-  providers: [GatewayService],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+  ],
 })
 export class GatewayModule { }

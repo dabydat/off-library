@@ -18,44 +18,9 @@ else
   echo "✅ sqlite3 ya está instalado"
 fi
 
-# Crear tablas iniciales
-echo -e "\n🏗️ Creando tablas iniciales..."
-docker exec -i library bash -c "cat > /tmp/init.sql << 'EOF'
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  full_name TEXT,
-  email TEXT,
-  role TEXT DEFAULT 'reader',
-  is_active INTEGER DEFAULT 1,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS books (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  author TEXT,
-  isbn TEXT UNIQUE,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
--- Añadir dato de prueba
-INSERT OR IGNORE INTO books (id, title, author, isbn) 
-VALUES ('test-1', 'Ejemplo de Libro', 'Autor de Prueba', '1234567890123');
-EOF"
-
-docker exec -i library bash -c "sqlite3 /app/data/off_library.db < /tmp/init.sql"
-
 # Listar tablas creadas
 echo -e "\n📋 Listando tablas creadas:"
 docker exec library sqlite3 /app/data/off_library.db ".tables"
-
-# Ver muestra de datos
-echo -e "\n📊 Muestra de datos:"
-docker exec library sqlite3 /app/data/off_library.db "SELECT * FROM books;"
 
 # Reiniciar sqliteweb para reflejar los cambios
 echo -e "\n🔄 Reiniciando sqliteweb para reflejar los cambios..."

@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
+import { GlobalExceptionFilter } from '@app/common-core/infrastructure/filters/global-exception.filter';
 
 async function bootstrap() {
   const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(GatewayModule);

@@ -12,6 +12,8 @@ COPY tsconfig.json .
 COPY nest-cli.json .
 
 RUN npm install
+RUN npm install -g nodemon
+RUN npm install -g @nestjs/cli
 
 # Crear directorios para SQLite
 RUN mkdir -p /app/data /app/backups && \
@@ -20,8 +22,7 @@ RUN mkdir -p /app/data /app/backups && \
 ARG PORT=8001
 EXPOSE ${PORT}
 
-CMD ["npm", "run", "start:dev", "library"]
-
+CMD ["nodemon", "--delay", "2", "--watch", "apps/library", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "library"]
 FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app
