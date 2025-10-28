@@ -11,13 +11,6 @@ import {
 } from './exception-mapper.strategy';
 import { ErrorMetadata, ErrorPayload, ErrorPayloadBuilder } from './payload.builder';
 
-/**
- * Service responsible for extracting structured error information from exceptions.
- * 
- * Uses Strategy Pattern to determine the correct mapper for each exception type.
- * 
- * @see docs/EXCEPTION_HANDLING.md#arquitectura
- */
 @Injectable()
 export class ExceptionExtractorService {
     private readonly mappers: ExceptionMapperStrategy[];

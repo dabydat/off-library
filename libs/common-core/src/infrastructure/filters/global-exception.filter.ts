@@ -1,38 +1,19 @@
-import {
-    ArgumentsHost,
-    Catch,
-    ExceptionFilter,
-    Logger,
-    Injectable,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger, Injectable } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { ExceptionExtractorService } from './solid/exception-extractor.service';
-
-interface ErrorResponse {
-    status: 'error';
-    timestamp: string;
-    path: string;
-    method: string;
-    details: Array<{
-        message: string;
-        code: string;
-        param?: string;
-    }>;
-    meta: {
-        exceptionType: string;
-        exceptionName?: string;
-        handler: string;
-    };
-}
+import { ErrorResponseType } from './filter-types/error-response.type';
+import { HandlerDetectorService } from './solid/handler-dectector.service';
 
 @Catch()
 @Injectable()
 export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(GlobalExceptionFilter.name);
     private readonly extractor: ExceptionExtractorService;
+    private readonly handlerDetector: HandlerDetectorService;
 
     constructor() {
         this.extractor = new ExceptionExtractorService();
+        this.handlerDetector = new HandlerDetectorService();
     }
 
     catch(exception: any, host: ArgumentsHost): void {
@@ -40,42 +21,35 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
 
-        // Extraer payload desde microservicio o excepción local
         const payload = this.extractPayload(exception);
 
-        // Construir respuesta estandarizada
-        const errorResponse: ErrorResponse = {
+        const errorResponse: ErrorResponseType = {
             status: 'error',
             timestamp: new Date().toISOString(),
             path: request.url,
             method: request.method,
             details: payload.details,
             meta: {
-                // ✅ Si el payload ya tiene meta (desde RPC), úsalo
                 exceptionType: payload.meta?.exceptionType || this.getExceptionType(exception),
                 exceptionName: payload.meta?.exceptionName || exception?.exceptionName || exception?.name,
-                handler: this.getHandlerName(exception),
+                handler: this.handlerDetector.detect(exception),
             },
         };
 
-        // Log
         this.logError(exception, request, payload.status);
 
-        // Enviar respuesta
         response.status(payload.status).json(errorResponse);
     }
 
     private extractPayload(exception: any): any {
-        // Si viene del microservicio con error.status y error.details
         if (exception?.error?.status && Array.isArray(exception?.error?.details)) {
             return {
                 status: exception.error.status,
                 details: exception.error.details,
-                meta: exception.error.meta, // ✅ Extraer meta del microservicio
+                meta: exception.error.meta,
             };
         }
 
-        // Caso contrario, extraer localmente
         return this.extractor.extract(exception);
     }
 
@@ -89,33 +63,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         }
 
         return 'Unknown';
-    }
-
-    private getHandlerName(exception: any): string {
-        // Si viene del microservicio con metadata
-        if (exception?.error?.meta) {
-            return 'RpcGlobalExceptionFilter';
-        }
-
-        // Si viene del microservicio sin metadata
-        if (exception?.error) {
-            return 'RpcGlobalExceptionFilter';
-        }
-
-        // Si es local
-        if (exception?.constructor?.name === 'HttpException') {
-            return 'HttpExceptionMapper';
-        }
-
-        if (exception?.constructor?.name === 'DomainException') {
-            return 'DomainExceptionMapper';
-        }
-
-        if (exception?.constructor?.name === 'ValueObjectException') {
-            return 'ValueObjectExceptionMapper';
-        }
-
-        return 'DefaultExceptionMapper';
     }
 
     private logError(exception: any, request: Request, httpStatus: number): void {

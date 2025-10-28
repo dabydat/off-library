@@ -16,7 +16,7 @@ export class RpcGlobalExceptionFilter implements ExceptionFilter {
     catch(exception: any): Observable<never> {
         this.logException(exception);
 
-        // Si ya es RpcException formateada correctamente, no la re-envolvemos
+        // Si ya es RpcException formateada correctamente
         if (this.isFormattedRpcException(exception)) {
             return throwError(() => exception);
         }

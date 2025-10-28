@@ -12,13 +12,13 @@ export interface ErrorMetadata {
 export interface ErrorPayload {
     status: number;
     details: ErrorDetail[];
-    meta: ErrorMetadata; // ✅ Ya no es opcional
+    meta: ErrorMetadata;
 }
 
 export class ErrorPayloadBuilder {
     private status: number = 500;
     private details: ErrorDetail[] = [];
-    private meta: ErrorMetadata = { exceptionType: 'Unknown' }; // ✅ Valor por defecto
+    private meta: ErrorMetadata = { exceptionType: 'Unknown' };
 
     withStatus(status: number): this {
         this.status = status;
@@ -54,7 +54,7 @@ export class ErrorPayloadBuilder {
         return {
             status: this.status,
             details: this.details,
-            meta: this.meta, // ✅ Siempre incluido
+            meta: this.meta,
         };
     }
 
