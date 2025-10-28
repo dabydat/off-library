@@ -42,6 +42,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     private extractPayload(exception: any): any {
+        // Si viene del microservicio con error.status y error.details
         if (exception?.error?.status && Array.isArray(exception?.error?.details)) {
             return {
                 status: exception.error.status,
@@ -50,6 +51,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             };
         }
 
+        // Caso contrario, extraer localmente
         return this.extractor.extract(exception);
     }
 
