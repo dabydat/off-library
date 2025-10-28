@@ -15,26 +15,16 @@ export class DomainExceptionMapper implements ExceptionMapperStrategy {
 
     mapToStatus(exception: any): number {
         const exceptionName = exception.exceptionName || exception.name;
-
-        // ✅ Buscar en las reglas configurables
         const matchedRule = this.findMatchingRule(exceptionName);
 
-        if (matchedRule) {
-            return matchedRule.status;
-        }
-
-        // Default para DomainException
-        return HttpStatus.BAD_REQUEST;
+        return matchedRule?.status ?? HttpStatus.BAD_REQUEST;
     }
 
     mapToCode(exception: any): string {
         return this.toSnakeCase(exception.exceptionName || exception.name);
     }
 
-    // ========== Método de búsqueda por reglas ==========
-
     private findMatchingRule(exceptionName: string) {
-        // Ordenar por prioridad descendente
         const sortedRules = [...EXCEPTION_MAPPING_RULES].sort(
             (a, b) => (b.priority || 0) - (a.priority || 0)
         );
@@ -102,7 +92,7 @@ export class HttpExceptionMapper implements ExceptionMapperStrategy {
 
 export class DefaultExceptionMapper implements ExceptionMapperStrategy {
     canHandle(): boolean {
-        return true; // Fallback siempre puede manejar
+        return true;
     }
 
     mapToStatus(): number {

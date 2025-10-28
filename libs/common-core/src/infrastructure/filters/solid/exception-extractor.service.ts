@@ -1,20 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { DefaultExceptionMapper, DomainExceptionMapper, ExceptionMapperStrategy, HttpExceptionMapper, ValueObjectExceptionMapper } from './exception-mapper.strategy';
-import { ErrorMetadata, ErrorPayload, ErrorPayloadBuilder } from './payload.builder';
+import { HttpException } from '@nestjs/common';
 import { DomainException } from '@app/common-core/domain/exceptions/domain.exception';
 import { ValueObjectException } from '@app/common-core/domain/exceptions/value-object.exception';
-import { HttpException } from '@nestjs/common';
+import {
+    DefaultExceptionMapper,
+    DomainExceptionMapper,
+    ExceptionMapperStrategy,
+    HttpExceptionMapper,
+    ValueObjectExceptionMapper
+} from './exception-mapper.strategy';
+import { ErrorMetadata, ErrorPayload, ErrorPayloadBuilder } from './payload.builder';
 
+/**
+ * Service responsible for extracting structured error information from exceptions.
+ * 
+ * Uses Strategy Pattern to determine the correct mapper for each exception type.
+ * 
+ * @see docs/EXCEPTION_HANDLING.md#arquitectura
+ */
 @Injectable()
 export class ExceptionExtractorService {
     private readonly mappers: ExceptionMapperStrategy[];
 
     constructor() {
         this.mappers = [
-            new ValueObjectExceptionMapper(), // ✅ Más específico primero
+            new ValueObjectExceptionMapper(),
             new DomainExceptionMapper(),
             new HttpExceptionMapper(),
-            new DefaultExceptionMapper(), // Siempre al final
+            new DefaultExceptionMapper(),
         ];
     }
 
@@ -24,11 +37,9 @@ export class ExceptionExtractorService {
 
         builder.withStatus(mapper.mapToStatus(exception));
 
-        // Extraer detalles según el tipo de excepción
         const details = this.extractDetails(exception, mapper);
         builder.addDetails(details);
 
-        // ✅ SIEMPRE agregar metadata
         const meta = this.extractMetadata(exception, mapper);
         builder.withMeta(meta);
 
@@ -41,7 +52,6 @@ export class ExceptionExtractorService {
     }
 
     private extractDetails(exception: any, mapper: ExceptionMapperStrategy): any[] {
-        // Si ya tiene details estructurado
         if (Array.isArray(exception?.details)) {
             return exception.details.map((d: any) => ({
                 message: d.message || String(d),
@@ -50,12 +60,10 @@ export class ExceptionExtractorService {
             }));
         }
 
-        // Si tiene error.details (RPC)
         if (Array.isArray(exception?.error?.details)) {
             return exception.error.details;
         }
 
-        // Si es HttpException con array de mensajes (validation)
         if (Array.isArray(exception?.getResponse?.()?.message)) {
             return exception.getResponse().message.map((msg: string) => ({
                 message: msg,
@@ -63,7 +71,6 @@ export class ExceptionExtractorService {
             }));
         }
 
-        // Single message
         const message = this.extractMessage(exception);
         return [{
             message,
@@ -84,11 +91,8 @@ export class ExceptionExtractorService {
         return 'Internal server error';
     }
 
-    // ✅ MEJORADO: Extraer metadata verificando instanceof
     private extractMetadata(exception: any, mapper: ExceptionMapperStrategy): ErrorMetadata {
         const exceptionName = exception?.exceptionName || exception?.name;
-
-        // ✅ Determinar el tipo base correcto usando instanceof
         let exceptionType: string;
 
         if (exception instanceof ValueObjectException) {
@@ -100,27 +104,16 @@ export class ExceptionExtractorService {
         } else if (exception?.constructor?.name && exception.constructor.name !== 'Object') {
             exceptionType = exception.constructor.name;
         } else {
-            // Fallback al mapper
             exceptionType = this.getMapperType(mapper);
         }
 
-        return {
-            exceptionType,
-            exceptionName,
-        };
+        return { exceptionType, exceptionName };
     }
 
-    // ✅ Determinar el tipo basado en el mapper usado
     private getMapperType(mapper: ExceptionMapperStrategy): string {
-        if (mapper instanceof DomainExceptionMapper) {
-            return 'DomainException';
-        }
-        if (mapper instanceof ValueObjectExceptionMapper) {
-            return 'ValueObjectException';
-        }
-        if (mapper instanceof HttpExceptionMapper) {
-            return 'HttpException';
-        }
+        if (mapper instanceof DomainExceptionMapper) return 'DomainException';
+        if (mapper instanceof ValueObjectExceptionMapper) return 'ValueObjectException';
+        if (mapper instanceof HttpExceptionMapper) return 'HttpException';
         return 'UnknownException';
     }
 }
