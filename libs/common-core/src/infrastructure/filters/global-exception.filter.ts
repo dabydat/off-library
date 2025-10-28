@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, Logger, Injectable } from '@nest
 import type { Response, Request } from 'express';
 import { ExceptionExtractorService } from './solid/exception-extractor.service';
 import { ErrorResponseType } from './filter-types/error-response.type';
-import { HandlerDetectorService } from './solid/handler-dectector.service';
+import { HandlerDetectorService } from './solid/handler-detector.service';
 
 @Catch()
 @Injectable()

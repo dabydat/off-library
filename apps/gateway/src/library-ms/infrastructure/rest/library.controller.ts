@@ -43,8 +43,8 @@ export class LibraryController {
     @ApiTooManyRequestsResponse({ description: 'Too many requests - rate limit exceeded', type: ErrorResponse })
     async createBook(@Body() body: CreateBookRequest): Promise<GetBookResponse> {
         return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN, {
-            publicationDate: body.publication_date,
-            ...body
+            ...body,
+            publicationDate: body.publication_date
         }));
     }
 }

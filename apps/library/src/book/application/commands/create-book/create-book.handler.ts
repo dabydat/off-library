@@ -1,6 +1,5 @@
 import { BookSummary } from './../../../domain/value-objects/book-summary';
 import { BookLanguage } from './../../../domain/value-objects/book-language';
-import { TinyIntVO } from './../../../../../../../libs/common-core/src/domain/value-objects/tinyint-vo';
 import { BookGenre } from './../../../domain/value-objects/book-genre';
 import { BookPublisher } from './../../../domain/value-objects/book-publisher';
 import { BookISBN } from './../../../domain/value-objects/book-isbn';
@@ -12,7 +11,7 @@ import { BOOK_REPOSITORY } from '../../../domain/ports/book-repository.port';
 import { BookRepositoryAdapter } from '../../../infrastructure/adapters/book.repository.adapter';
 import { Book } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
-import { UtcDate } from '@app/common-core/domain/value-objects';
+import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
 
 @CommandHandler(CreateBookCommand)

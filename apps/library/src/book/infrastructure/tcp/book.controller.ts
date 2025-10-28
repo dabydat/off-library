@@ -30,7 +30,7 @@ export class BookController {
             books.totalPages,
             books.pageSize,
             books.currentPage
-        )
+        );
     }
 
     @MessagePattern(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN)
@@ -47,7 +47,7 @@ export class BookController {
                 payload.language,
                 payload.summary
             )
-        )
+        );
 
         return BookMapper.toBookResponse(createBook);
     }

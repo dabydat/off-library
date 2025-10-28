@@ -7,7 +7,7 @@ import { DatabaseModule } from './config/database/database.module';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { TransformableInfo } from 'logform';
-import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rcp-exception.filter';
+import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rpc-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 
 @Module({

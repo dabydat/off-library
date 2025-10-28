@@ -52,7 +52,7 @@ export class CreateBooksTable1761260908361 implements MigrationInterface {
                 {
                     name: 'PAGES',
                     type: 'tinyint',
-                    isNullable: true,
+                    isNullable: false,
                 },
                 {
                     name: 'LANGUAGE',

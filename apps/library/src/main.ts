@@ -3,7 +3,7 @@ import { LibraryModule } from './library.module';
 import { INestApplication, INestMicroservice, Logger, NestHybridApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientOptions, Transport } from '@nestjs/microservices';
-import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rcp-exception.filter';
+import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app: INestApplication<any> = await NestFactory.create(LibraryModule);
