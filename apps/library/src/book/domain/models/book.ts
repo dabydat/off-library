@@ -1,6 +1,7 @@
 import { AggregateRoot } from "@nestjs/cqrs";
 import { BookAuthor, BookGenre, BookGenreEnum, BookISBN, BookLanguage, BookLanguageEnum, BookName, BookPublisher, BookSummary } from "../value-objects";
 import { TinyIntVO, UtcDate, Uuid } from "@app/common-core/domain/value-objects";
+import { IsPublisherValidValidator } from "../validators/publisher-is-valid.validator";
 
 export type BookPrimitives = {
     id: string;
@@ -50,5 +51,34 @@ export class Book extends AggregateRoot {
             createdAt: this.createdAt?.toISOString,
             updatedAt: this.updatedAt?.toISOString
         };
+    }
+
+    public static create(
+        name: BookName,
+        author: BookAuthor,
+        isbn: BookISBN,
+        publisher: BookPublisher,
+        publicationDate: UtcDate,
+        genre: BookGenre,
+        pages: TinyIntVO,
+        language: BookLanguage,
+        summary?: BookSummary
+    ): Book {
+        return new Book(
+            Uuid.create(),
+            name,
+            author,
+            isbn,
+            publisher,
+            publicationDate,
+            genre,
+            pages,
+            language,
+            summary
+        );
+    }
+
+    public validateIsPublisherIsValid(): void {
+        new IsPublisherValidValidator(this).validate();
     }
 }

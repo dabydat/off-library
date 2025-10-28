@@ -5,3 +5,5 @@ export { BookPublisherException } from './book-publisher.exception';
 export { BookGenreException } from './book-genre.exception';
 export { BookLanguageException } from './book-language.exception';
 export { BookSummaryException } from './book-summary.exception';
+export { IsPublisherValidValidatorException } from './is-publisher-valid-validator.exception';
+export { BookAlreadyExistsException } from './book-already-exists.exception';

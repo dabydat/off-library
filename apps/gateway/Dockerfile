@@ -10,11 +10,13 @@ COPY tsconfig.json .
 COPY nest-cli.json .
 
 RUN npm install
+RUN npm install -g nodemon
+RUN npm install -g @nestjs/cli
 
 ARG PORT=8000
 EXPOSE ${PORT}
 
-CMD ["nodemon", "--watch", "apps/gateway", "--watch", "apps/gateway/main.ts"]
+CMD ["nodemon", "--watch", "apps/gateway", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "gateway"]
 
 FROM node:${NODE_VERSION} AS builder
 

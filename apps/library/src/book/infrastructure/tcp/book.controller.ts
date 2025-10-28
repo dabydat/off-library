@@ -8,6 +8,8 @@ import { PaginatedResponse } from '@app/common-core/domain/types/paginate-respon
 import { BookMapper } from '../mappers/book.mapper';
 import { Book } from '../../domain/models/book';
 import { BookResponse } from './response/book.response';
+import { CreateBookRequest } from './request/create-book.request';
+import { CreateBookCommand } from '../../application/commands/create-book/create-book.command';
 
 @Controller()
 export class BookController {
@@ -29,5 +31,24 @@ export class BookController {
             books.currentPage,
             books.pageSize
         )
+    }
+
+    @MessagePattern(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN)
+    public async createBook(payload: CreateBookRequest): Promise<BookResponse> {
+        const createBook = await this.commandBus.execute(
+            new CreateBookCommand(
+                payload.name,
+                payload.author,
+                payload.isbn,
+                payload.publisher,
+                payload.publicationDate,
+                payload.genre,
+                payload.pages,
+                payload.language,
+                payload.summary
+            )
+        )
+
+        return BookMapper.toBookResponse(createBook);
     }
 }

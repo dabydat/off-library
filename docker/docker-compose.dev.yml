@@ -62,6 +62,7 @@ services:
         PORT: 8000
     image: off_library/api-gateway:dev
     restart: unless-stopped
+    stop_grace_period: 5s
     ports:
       - "8000:8000"
     expose:
@@ -70,16 +71,16 @@ services:
       - ../apps/gateway/.env
     environment:
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       kafka:
         condition: service_healthy
     volumes:
       - ../apps/gateway:/app/apps/gateway
       - ../libs/common-core:/app/libs/common-core
-      - /app/node_modules
     networks:
       - off_library_network
-    command: npm run start:dev gateway
 
   library:
     container_name: library
@@ -91,6 +92,7 @@ services:
         PORT: 8001
     image: off_library/api-library:dev
     restart: unless-stopped
+    stop_grace_period: 5s
     ports:
       - "8001:8001"
     expose:
@@ -99,6 +101,8 @@ services:
       - ../apps/library/.env
     environment:
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       kafka:
         condition: service_healthy
@@ -106,10 +110,8 @@ services:
       - ../apps/library:/app/apps/library
       - ../libs/common-core:/app/libs/common-core
       - ../data:/app/data
-      - /app/node_modules
     networks:
       - off_library_network
-    command: npm run start:dev library
 
   sqliteweb:
     container_name: sqliteweb
