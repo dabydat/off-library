@@ -22,7 +22,7 @@ RUN mkdir -p /app/data /app/backups && \
 ARG PORT=8001
 EXPOSE ${PORT}
 
-CMD ["nodemon", "--watch", "apps/library", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "library"]
+CMD ["nodemon", "--delay", "2", "--watch", "apps/library", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "library"]
 FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app

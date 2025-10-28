@@ -16,7 +16,7 @@ RUN npm install -g @nestjs/cli
 ARG PORT=8000
 EXPOSE ${PORT}
 
-CMD ["nodemon", "--watch", "apps/gateway", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "gateway"]
+CMD ["nodemon", "--delay", "2", "--watch", "apps/gateway", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "gateway"]
 
 FROM node:${NODE_VERSION} AS builder
 
