@@ -28,8 +28,8 @@ export class BookController {
             books.items.map((book: Book) => BookMapper.toBookResponse(book)),
             books.totalItems,
             books.totalPages,
-            books.currentPage,
-            books.pageSize
+            books.pageSize,
+            books.currentPage
         )
     }
 

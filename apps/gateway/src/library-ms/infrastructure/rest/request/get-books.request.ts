@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, IsPositive } from "class-validator";
 
 export class GetBooksRequest {
     @ApiProperty({
-        description: 'Limit number of books to retrieve',
+        description: 'limit number of books to retrieve',
         example: 10,
         required: true,
         format: 'number',
@@ -12,12 +12,12 @@ export class GetBooksRequest {
     @IsNotEmpty()
     @Transform(({ value }) => parseInt(value, 10))
     @Type(() => Number)
-    @IsNumber({}, { message: 'Limit must be a number' })
+    @IsNumber({}, { message: 'limit must be a number' })
     @IsPositive()
     public readonly limit: number
 
     @ApiProperty({
-        description: 'Page number of books to retrieve',
+        description: 'page number of books to retrieve',
         example: 1,
         required: true,
         format: 'number',
@@ -25,7 +25,7 @@ export class GetBooksRequest {
     @IsNotEmpty()
     @Transform(({ value }) => parseInt(value, 10))
     @Type(() => Number)
-    @IsNumber({}, { message: 'Page must be a number' })
+    @IsNumber({}, { message: 'page must be a number' })
     @IsPositive()
     public readonly page: number
 

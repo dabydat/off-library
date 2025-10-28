@@ -10,6 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { GetBooksResponse } from './response/get-books.response';
 import { RestPaginationResponse } from '@app/common-core/infrastructure/rest/rest-pagination.response';
 import { CreateBookRequest } from './request/create-book.request';
+import { GetBookResponse } from './response/get-book.response';
 
 @Controller(LibraryControllerName)
 export class LibraryController {
@@ -34,13 +35,13 @@ export class LibraryController {
     @Put(LibraryControllerMap.CREATE_BOOK.ROUTE)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ description: 'Create a Book' })
-    @ApiOkResponse({ type: String, description: 'Book created successfully' })
+    @ApiOkResponse({ type: GetBookResponse, description: 'Book created successfully' })
     @ApiBadRequestResponse({ description: 'Invalid request parameters', type: ErrorResponse })
     @ApiNotFoundResponse({ description: 'Resource not found', type: ErrorResponse })
     @ApiInternalServerErrorResponse({ description: 'Unexpected server error', type: ErrorResponse })
     @ApiUnauthorizedResponse({ description: 'Unauthorized access', type: ErrorResponse })
     @ApiTooManyRequestsResponse({ description: 'Too many requests - rate limit exceeded', type: ErrorResponse })
-    async createBook(@Body() body: CreateBookRequest): Promise<any> {
+    async createBook(@Body() body: CreateBookRequest): Promise<GetBookResponse> {
         return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN, {
             publicationDate: body.publication_date,
             ...body

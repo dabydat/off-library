@@ -39,7 +39,7 @@ Esta guía te ayuda a entender los puntos clave y opciones menos comunes de la c
 
 ---
 
-## 💡 Tips Profesionales
+## 💡 Tips Profesionales para el desarrollo en local
 
 - Usa `stop_grace_period` para evitar errores de puerto ocupado.
 - Las variables `CHOKIDAR_USEPOLLING` y `WATCHPACK_POLLING` son clave para hot-reload en Windows.
