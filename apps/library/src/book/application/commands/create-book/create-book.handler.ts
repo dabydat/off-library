@@ -13,12 +13,15 @@ import { BookName } from '../../../domain/value-objects';
 import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
 import { AddAStarToBookEvent } from '../../../domain/events/add-a-start-to-book.event';
+import { PUBLISHER_PORT, type PublisherPort } from '../../../domain/ports/publisher.port';
 
 @CommandHandler(CreateBookCommand)
 export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
     constructor(
         @Inject(BOOK_REPOSITORY)
-        private readonly bookRepositoryPort: BookRepositoryPort
+        private readonly bookRepositoryPort: BookRepositoryPort,
+        @Inject(PUBLISHER_PORT)
+        private readonly publisherPort: PublisherPort
     ) { }
     async execute(command: CreateBookCommand): Promise<Book> {
 
@@ -42,14 +45,13 @@ export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
         );
 
         newBook.validateIsPublisherIsValid();
-        const bookCreated: Book = await this.bookRepositoryPort.create(newBook);
+        const bookCreated: Book = await this.bookRepositoryPort.save(newBook);
 
         const bookPrimitives: BookPrimitives = bookCreated.toPrimitives();
 
-        bookCreated.apply(
-            new AddAStarToBookEvent(bookPrimitives.id)
-        )
-
+        this.publisherPort.mergeObjectContext(bookCreated);
+        bookCreated.apply(new AddAStarToBookEvent(bookPrimitives.id));
+        bookCreated.commit();
         return bookCreated;
     }
 }

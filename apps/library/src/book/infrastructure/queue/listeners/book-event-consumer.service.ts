@@ -17,15 +17,12 @@ export class BookEventConsumerService implements OnModuleInit {
   ) { }
 
   public onModuleInit(): void {
-    this.userAuthenticatedSuccessfully();
+    this.addAStarToBook();
   }
 
-  private userAuthenticatedSuccessfully(): void {
-    const maxRetries: number =
-      this.configService.get<number>('kafka.maxTries')!;
-    const retryDelayMs: number =
-      this.configService.get<number>('kafka.retryDelayMs')!;
-
+  private addAStarToBook(): void {
+    const maxRetries: number = this.configService.get<number>('kafka.maxTries')!;
+    const retryDelayMs: number = this.configService.get<number>('kafka.retryDelayMs')!;
     this.queueService.consume(
       KafkaTopicConstant.ADD_A_STAR_TO_BOOK,
       async (message: AddAStarToBookMessage): Promise<void> => {

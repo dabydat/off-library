@@ -15,6 +15,9 @@ import { BOOK_REPOSITORY } from './domain/ports/book-repository.port';
 import { BookRepositoryAdapter } from './infrastructure/adapters/book.repository.adapter';
 import { PUBLISHER_PORT } from './domain/ports/publisher.port';
 import { PublisherAdapter } from './infrastructure/adapters/publisher.adapter';
+import { BookEventConsumerService } from './infrastructure/queue/listeners/book-event-consumer.service';
+import { LOGGER_PORT } from './domain/ports/logger.port';
+import { LoggerAdapter } from './infrastructure/adapters/logger.adapter';
 
 @Module({
     imports: [
@@ -34,6 +37,10 @@ import { PublisherAdapter } from './infrastructure/adapters/publisher.adapter';
             useClass: PublisherAdapter,
         },
         {
+            provide: LOGGER_PORT,
+            useClass: LoggerAdapter
+        },
+        {
             provide: TRANSACTION_EXECUTION_PORT,
             useClass: TransactionExecutionAdapter,
         },
@@ -44,7 +51,8 @@ import { PublisherAdapter } from './infrastructure/adapters/publisher.adapter';
         {
             provide: BOOK_REPOSITORY,
             useClass: BookRepositoryAdapter,
-        }
+        },
+        BookEventConsumerService,
     ],
 })
 export class BookModule { }

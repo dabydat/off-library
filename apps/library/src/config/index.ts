@@ -20,6 +20,8 @@ export default (): ConfigEnvironment => {
     kafka: {
       broker: value.KAFKA_BROKER,
       clientId: value.KAFKA_CLIENT_ID,
+      maxTries: value.KAFKA_MAX_TRIES,
+      retryDelayMs: value.KAFKA_RETRY_DELAY_MS,
     }
   };
 };

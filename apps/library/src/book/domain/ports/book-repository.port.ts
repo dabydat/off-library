@@ -8,8 +8,7 @@ export const BOOK_REPOSITORY = Symbol('BOOK_REPOSITORY');
 
 export interface BookRepositoryPort {
     findAll(pagination: Pagination): Promise<DomainPagination<Book[]>>;
-    create(book: Book): Promise<Book>;
+    save(book: Book): Promise<Book>;
     findBookByISBN(isbn: BookISBN): Promise<Book | null>;
     findBookById(id: Uuid): Promise<Book | null>;
-    save(book: Book): Promise<Book>;
 }

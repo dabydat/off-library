@@ -33,7 +33,7 @@ export class Book extends AggregateRoot {
         private readonly summary?: BookSummary,
         private readonly createdAt?: UtcDate,
         private readonly updatedAt?: UtcDate,
-        private readonly starsCount?: TinyIntVO
+        private starsCount?: TinyIntVO
     ) {
         super();
     }
@@ -89,8 +89,7 @@ export class Book extends AggregateRoot {
         new IsPublisherValidValidator(this).validate();
     }
 
-    public static addAStarToBook(starsCount: TinyIntVO): TinyIntVO {
-        const newStarsCount = starsCount.getValue + 1;
-        return TinyIntVO.create(newStarsCount);
+    public addAStarToBook(): void {
+        this.starsCount = TinyIntVO.create((this.starsCount?.getValue ?? 0) + 1);
     }
 }

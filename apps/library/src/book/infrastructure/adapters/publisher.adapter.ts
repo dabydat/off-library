@@ -9,4 +9,5 @@ export class PublisherAdapter implements PublisherPort {
   mergeObjectContext<T extends AggregateRoot<IEvent>>(aggregate: T): T {
     return this.publisher.mergeObjectContext(aggregate);
   }
+
 }

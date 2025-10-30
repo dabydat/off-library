@@ -62,6 +62,8 @@ export type ConfigSchema = {
   DATABASE_ENCRYPTION_KEY: string;
   KAFKA_BROKER: string;
   KAFKA_CLIENT_ID: string;
+  KAFKA_MAX_TRIES: number;
+  KAFKA_RETRY_DELAY_MS: number;
 };
 
 export type ConfigEnvironment = {
@@ -74,5 +76,7 @@ export type ConfigEnvironment = {
   kafka: {
     broker: string;
     clientId: string;
+    maxTries: number;
+    retryDelayMs: number;
   };
 };

@@ -40,13 +40,13 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
         );
     }
 
-    async create(book: Book): Promise<Book> {
-        const bookEntity = await this.bookRepository.save(BookMapper.toBookEntity(book));
-        return BookMapper.toBook(bookEntity);
-    }
-
     async findBookById(id: Uuid): Promise<Book | null> {
         const bookEntity = await this.bookRepository.findOne({ where: { id: id.getValue } });
         return bookEntity ? BookMapper.toBook(bookEntity) : null;
+    }
+
+    async save(book: Book): Promise<Book> {
+        const bookEntity = await this.bookRepository.save(BookMapper.toBookEntity(book));
+        return BookMapper.toBook(bookEntity);
     }
 }
