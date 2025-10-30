@@ -8,6 +8,7 @@ import { BookRepositoryPort } from "../../domain/ports/book-repository.port";
 import { Pagination } from "@app/common-core/domain/value-objects/pagination";
 import { DomainPagination } from "@app/common-core/domain/types/domain-pagination.type";
 import { BookISBN } from "../../domain/value-objects";
+import { Uuid } from "@app/common-core/domain/value-objects/uuid";
 
 
 @Injectable()
@@ -16,11 +17,6 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
         @InjectRepository(BookEntity)
         private readonly bookRepository: Repository<BookEntity>,
     ) { }
-
-    async findBookByISBN(isbn: BookISBN): Promise<Book | null> {
-        const bookEntity = await this.bookRepository.findOne({ where: { isbn: isbn.getValue } });
-        return bookEntity ? BookMapper.toBook(bookEntity) : null;
-    }
 
     async findAll(pagination: Pagination): Promise<DomainPagination<Book[]>> {
         const query = this.bookRepository.createQueryBuilder('book')
@@ -39,9 +35,18 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
         );
     }
 
-    async create(book: Book): Promise<Book> {
+    async findBookById(id: Uuid): Promise<Book | null> {
+        const bookEntity = await this.bookRepository.createQueryBuilder().where({ id: id.getValue }).getOne();
+        return bookEntity ? BookMapper.toBook(bookEntity) : null;
+    }
+
+    async findBookByISBN(isbn: BookISBN): Promise<Book | null> {
+        const bookEntity = await this.bookRepository.createQueryBuilder().where({ isbn: isbn.getValue }).getOne();
+        return bookEntity ? BookMapper.toBook(bookEntity) : null;
+    }
+
+    async save(book: Book): Promise<Book> {
         const bookEntity = await this.bookRepository.save(BookMapper.toBookEntity(book));
         return BookMapper.toBook(bookEntity);
     }
-
 }

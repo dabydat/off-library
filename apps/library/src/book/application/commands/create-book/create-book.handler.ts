@@ -7,22 +7,25 @@ import { BookAuthor } from './../../../domain/value-objects/book-author';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateBookCommand } from './create-book.command';
-import { BOOK_REPOSITORY } from '../../../domain/ports/book-repository.port';
-import { BookRepositoryAdapter } from '../../../infrastructure/adapters/book.repository.adapter';
-import { Book } from '../../../domain/models/book';
+import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
+import { Book, BookPrimitives } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
 import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
+import { AddAStarToBookEvent } from '../../../domain/events/add-a-star-to-book.event';
+import { PUBLISHER_PORT, type PublisherPort } from '../../../domain/ports/publisher.port';
 
 @CommandHandler(CreateBookCommand)
 export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
     constructor(
         @Inject(BOOK_REPOSITORY)
-        private readonly bookRepositoryAdapter: BookRepositoryAdapter
+        private readonly bookRepositoryPort: BookRepositoryPort,
+        @Inject(PUBLISHER_PORT)
+        private readonly publisherPort: PublisherPort
     ) { }
     async execute(command: CreateBookCommand): Promise<Book> {
 
-        const bookExists = await this.bookRepositoryAdapter.findBookByISBN(
+        const bookExists = await this.bookRepositoryPort.findBookByISBN(
             BookISBN.create(command.isbn)
         )
 
@@ -37,11 +40,17 @@ export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
             BookGenre.create(command.genre),
             TinyIntVO.create(command.pages),
             BookLanguage.create(command.language),
-            BookSummary.create(command.summary)
+            BookSummary.create(command.summary),
+            TinyIntVO.create(0)
         );
 
         newBook.validateIsPublisherIsValid();
-        const bookCreated: Book = await this.bookRepositoryAdapter.create(newBook);
+        const bookCreated: Book = await this.bookRepositoryPort.save(newBook);
+
+        const bookPrimitives: BookPrimitives = bookCreated.toPrimitives();
+
+        this.publisherPort.mergeObjectContext(bookCreated, new AddAStarToBookEvent(bookPrimitives.id));
+
         return bookCreated;
     }
 }

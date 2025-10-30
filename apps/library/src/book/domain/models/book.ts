@@ -16,6 +16,7 @@ export type BookPrimitives = {
     summary?: string;
     createdAt?: string;
     updatedAt?: string;
+    starsCount: number;
 };
 
 export class Book extends AggregateRoot {
@@ -31,7 +32,8 @@ export class Book extends AggregateRoot {
         private readonly language: BookLanguage,
         private readonly summary?: BookSummary,
         private readonly createdAt?: UtcDate,
-        private readonly updatedAt?: UtcDate
+        private readonly updatedAt?: UtcDate,
+        private starsCount?: TinyIntVO
     ) {
         super();
     }
@@ -49,7 +51,8 @@ export class Book extends AggregateRoot {
             language: this.language.getValue,
             summary: this.summary?.getValue,
             createdAt: this.createdAt?.toISOString,
-            updatedAt: this.updatedAt?.toISOString
+            updatedAt: this.updatedAt?.toISOString,
+            starsCount: this.starsCount?.getValue ?? 0,
         };
     }
 
@@ -62,7 +65,8 @@ export class Book extends AggregateRoot {
         genre: BookGenre,
         pages: TinyIntVO,
         language: BookLanguage,
-        summary?: BookSummary
+        summary?: BookSummary,
+        starsCount?: TinyIntVO
     ): Book {
         return new Book(
             Uuid.create(),
@@ -74,11 +78,18 @@ export class Book extends AggregateRoot {
             genre,
             pages,
             language,
-            summary
+            summary,
+            UtcDate.now(),
+            UtcDate.now(),
+            starsCount
         );
     }
 
     public validateIsPublisherIsValid(): void {
         new IsPublisherValidValidator(this).validate();
+    }
+
+    public addAStarToBook(): void {
+        this.starsCount = TinyIntVO.create((this.starsCount?.getValue ?? 0) + 1);
     }
 }

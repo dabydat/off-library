@@ -40,6 +40,9 @@ export class BookEntity {
     @UpdateDateColumn({ name: 'UPDATED_AT', type: 'datetime' })
     public updatedAt: Date;
 
+    @Column({ name: 'STARS_COUNT', type: "int", default: 0 })
+    public starsCount: number;
+
     constructor(entity: Partial<BookEntity>) {
         Object.assign(this, entity);
     }

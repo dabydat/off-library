@@ -8,6 +8,8 @@ export const configValidation = Joi.object<ConfigSchema>({
 
   KAFKA_BROKER: Joi.string().required(),
   KAFKA_CLIENT_ID: Joi.string().required(),
+  KAFKA_MAX_TRIES: Joi.number().required(),
+  KAFKA_RETRY_DELAY_MS: Joi.number().required(),
 
   DATABASE_TYPE: Joi.string().required(),
   DATABASE_NAME: Joi.string().required(),
