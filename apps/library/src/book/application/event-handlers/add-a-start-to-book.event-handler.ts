@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { AddAStarToBookEvent } from '../../domain/events/add-a-start-to-book.event';
+import { AddAStarToBookEvent } from '../../domain/events/add-a-star-to-book.event';
 import { QUEUE_SERVICE, type QueueService } from '@app/common-core/domain/services/queue.service';
 import { KafkaTopicConstant } from '@app/common-core/infrastructure/constants/kafka-topic.constant';
 import { AddAStarToBookMessage } from '@app/common-core/infrastructure/message/add-a-star-to-book.message';

@@ -12,7 +12,7 @@ import { Book, BookPrimitives } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
 import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
-import { AddAStarToBookEvent } from '../../../domain/events/add-a-start-to-book.event';
+import { AddAStarToBookEvent } from '../../../domain/events/add-a-star-to-book.event';
 import { PUBLISHER_PORT, type PublisherPort } from '../../../domain/ports/publisher.port';
 
 @CommandHandler(CreateBookCommand)
