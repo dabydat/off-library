@@ -8,10 +8,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateBookCommand } from './create-book.command';
 import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
-import { Book } from '../../../domain/models/book';
+import { Book, BookPrimitives } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
 import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
+import { AddAStarToBookEvent } from '../../../domain/events/add-a-start-to-book.event';
 
 @CommandHandler(CreateBookCommand)
 export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
@@ -42,6 +43,13 @@ export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
 
         newBook.validateIsPublisherIsValid();
         const bookCreated: Book = await this.bookRepositoryPort.create(newBook);
+
+        const bookPrimitives: BookPrimitives = bookCreated.toPrimitives();
+
+        bookCreated.apply(
+            new AddAStarToBookEvent(bookPrimitives.id)
+        )
+
         return bookCreated;
     }
 }

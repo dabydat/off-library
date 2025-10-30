@@ -88,4 +88,9 @@ export class Book extends AggregateRoot {
     public validateIsPublisherIsValid(): void {
         new IsPublisherValidValidator(this).validate();
     }
+
+    public static addAStarToBook(starsCount: TinyIntVO): TinyIntVO {
+        const newStarsCount = starsCount.getValue + 1;
+        return TinyIntVO.create(newStarsCount);
+    }
 }

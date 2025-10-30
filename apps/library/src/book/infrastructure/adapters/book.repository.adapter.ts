@@ -8,6 +8,7 @@ import { BookRepositoryPort } from "../../domain/ports/book-repository.port";
 import { Pagination } from "@app/common-core/domain/value-objects/pagination";
 import { DomainPagination } from "@app/common-core/domain/types/domain-pagination.type";
 import { BookISBN } from "../../domain/value-objects";
+import { Uuid } from "@app/common-core/domain/value-objects/uuid";
 
 
 @Injectable()
@@ -44,4 +45,8 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
         return BookMapper.toBook(bookEntity);
     }
 
+    async findBookById(id: Uuid): Promise<Book | null> {
+        const bookEntity = await this.bookRepository.findOne({ where: { id: id.getValue } });
+        return bookEntity ? BookMapper.toBook(bookEntity) : null;
+    }
 }

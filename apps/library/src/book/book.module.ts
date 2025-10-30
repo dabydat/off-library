@@ -13,6 +13,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookEntity } from './infrastructure/persistence/entities/book.entity';
 import { BOOK_REPOSITORY } from './domain/ports/book-repository.port';
 import { BookRepositoryAdapter } from './infrastructure/adapters/book.repository.adapter';
+import { PUBLISHER_PORT } from './domain/ports/publisher.port';
+import { PublisherAdapter } from './infrastructure/adapters/publisher.adapter';
 
 @Module({
     imports: [
@@ -27,6 +29,10 @@ import { BookRepositoryAdapter } from './infrastructure/adapters/book.repository
         ...CommandHandlers,
         ...EventHandlers,
         ...QueryHandlers,
+        {
+            provide: PUBLISHER_PORT,
+            useClass: PublisherAdapter,
+        },
         {
             provide: TRANSACTION_EXECUTION_PORT,
             useClass: TransactionExecutionAdapter,
