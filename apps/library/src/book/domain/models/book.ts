@@ -79,8 +79,8 @@ export class Book extends AggregateRoot {
             pages,
             language,
             summary,
-            undefined,
-            undefined,
+            UtcDate.now(),
+            UtcDate.now(),
             starsCount
         );
     }

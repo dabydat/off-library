@@ -6,8 +6,10 @@ import { PublisherPort } from '../../domain/ports/publisher.port';
 export class PublisherAdapter implements PublisherPort {
   constructor(private readonly publisher: EventPublisher) { }
 
-  mergeObjectContext<T extends AggregateRoot<IEvent>>(aggregate: T): T {
-    return this.publisher.mergeObjectContext(aggregate);
+  mergeObjectContext<T extends AggregateRoot<IEvent>>(aggregate: T, event: IEvent): T {
+    this.publisher.mergeObjectContext(aggregate);
+    aggregate.apply(event);
+    aggregate.commit();
+    return aggregate;
   }
-
 }

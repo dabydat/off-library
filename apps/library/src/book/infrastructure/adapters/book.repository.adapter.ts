@@ -18,11 +18,6 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
         private readonly bookRepository: Repository<BookEntity>,
     ) { }
 
-    async findBookByISBN(isbn: BookISBN): Promise<Book | null> {
-        const bookEntity = await this.bookRepository.findOne({ where: { isbn: isbn.getValue } });
-        return bookEntity ? BookMapper.toBook(bookEntity) : null;
-    }
-
     async findAll(pagination: Pagination): Promise<DomainPagination<Book[]>> {
         const query = this.bookRepository.createQueryBuilder('book')
         const [data, dataQty] = await query.skip(pagination.getOffset)
@@ -41,7 +36,12 @@ export class BookRepositoryAdapter implements BookRepositoryPort {
     }
 
     async findBookById(id: Uuid): Promise<Book | null> {
-        const bookEntity = await this.bookRepository.findOne({ where: { id: id.getValue } });
+        const bookEntity = await this.bookRepository.createQueryBuilder().where({ id: id.getValue }).getOne();
+        return bookEntity ? BookMapper.toBook(bookEntity) : null;
+    }
+
+    async findBookByISBN(isbn: BookISBN): Promise<Book | null> {
+        const bookEntity = await this.bookRepository.createQueryBuilder().where({ isbn: isbn.getValue }).getOne();
         return bookEntity ? BookMapper.toBook(bookEntity) : null;
     }
 

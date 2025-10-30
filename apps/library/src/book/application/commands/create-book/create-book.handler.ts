@@ -49,9 +49,8 @@ export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
 
         const bookPrimitives: BookPrimitives = bookCreated.toPrimitives();
 
-        this.publisherPort.mergeObjectContext(bookCreated);
-        bookCreated.apply(new AddAStarToBookEvent(bookPrimitives.id));
-        bookCreated.commit();
+        this.publisherPort.mergeObjectContext(bookCreated, new AddAStarToBookEvent(bookPrimitives.id));
+
         return bookCreated;
     }
 }

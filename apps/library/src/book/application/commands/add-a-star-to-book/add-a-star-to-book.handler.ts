@@ -15,19 +15,15 @@ export class AddAStarToBookHandler implements ICommandHandler<AddAStarToBookComm
         @Inject(LOGGER_PORT)
         private readonly loggerPort: LoggerPort
     ) { }
-    async execute(command: AddAStarToBookCommand): Promise<Book> {
+    async execute(command: AddAStarToBookCommand): Promise<void> {
         const bookId: Uuid = Uuid.create(command.bookId);
 
         const bookExists = await this.bookRepositoryPort.findBookById(bookId)
-
         if (!bookExists) throw new BookNotFoundException(`A book with this ID: ${command.bookId} not found.`);
 
         this.loggerPort.info(`Adding a star to book with ID: ${command.bookId}`);
 
         bookExists.addAStarToBook();
-
-        const addStarToBook: Book = await this.bookRepositoryPort.save(bookExists);
-
-        return addStarToBook;
+        await this.bookRepositoryPort.save(bookExists);
     }
 }
