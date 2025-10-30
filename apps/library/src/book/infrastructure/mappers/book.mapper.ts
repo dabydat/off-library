@@ -25,7 +25,8 @@ export class BookMapper {
             BookLanguage.create(bookEntity.language),
             bookEntity.summary ? BookSummary.create(bookEntity.summary) : undefined,
             UtcDate.create(bookEntity.createdAt),
-            UtcDate.create(bookEntity.updatedAt)
+            UtcDate.create(bookEntity.updatedAt),
+            TinyIntVO.create(bookEntity.starsCount)
         );
     }
 
@@ -42,6 +43,7 @@ export class BookMapper {
             pages: bookPrimitives.pages,
             language: bookPrimitives.language,
             summary: bookPrimitives.summary,
+            starsCount: bookPrimitives.starsCount,
         });
         return bookEntity;
     }
@@ -60,7 +62,8 @@ export class BookMapper {
             language: bookPrimitives.language,
             summary: bookPrimitives.summary,
             createdAt: bookPrimitives.createdAt,
-            updatedAt: bookPrimitives.updatedAt
+            updatedAt: bookPrimitives.updatedAt,
+            starsCount: bookPrimitives.starsCount,
         }
     }
 }
