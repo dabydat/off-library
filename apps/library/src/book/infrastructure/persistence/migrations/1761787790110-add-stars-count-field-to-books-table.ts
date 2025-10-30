@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableColumn } from "typeorm";
+import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 import { BOOK_TABLE_NAME } from "../entities/book.entity";
 
 export class AddStarsCountFieldToBooksTable1761787790110 implements MigrationInterface {

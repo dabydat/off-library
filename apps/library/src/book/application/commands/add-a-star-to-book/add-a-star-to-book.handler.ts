@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { AddAStarToBookCommand } from './add-a-star-to-book.command';
 import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
-import { Book } from '../../../domain/models/book';
 import { Uuid } from '@app/common-core/domain/value-objects';
 import { BookNotFoundException } from '../../../domain/exceptions';
 import { LOGGER_PORT, type LoggerPort } from '../../../domain/ports/logger.port';
