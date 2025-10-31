@@ -3,6 +3,8 @@ import { HttpModule } from '@nestjs/axios';
 import { FactusAsyncOptions, FactusOptions, FactusOptionsFactory } from './interfaces';
 import { FACTUS_TOKEN } from './constants';
 import { ApiService } from './services/api.service';
+import { TokenService } from './services/token.service';
+import { MunicipalitiesService } from './services/municipalities.service';
 
 @Global()
 @Module({})
@@ -15,9 +17,11 @@ export class FactusCoreModule {
           provide: FACTUS_TOKEN,
           useValue: options,
         },
+        TokenService,
         ApiService,
+        MunicipalitiesService
       ],
-      exports: [ApiService],
+      exports: [ApiService, MunicipalitiesService],
       imports: [HttpModule.register({})],
     };
   }
@@ -37,9 +41,13 @@ export class FactusCoreModule {
           useFactory: options.useFactory,
         },
         ...this.createAsyncProviders(options),
-        ApiService
+        TokenService,
+        ApiService,
+        MunicipalitiesService
       ],
-      exports: [ApiService],
+      exports: [ApiService,
+        MunicipalitiesService
+      ],
     };
   }
 

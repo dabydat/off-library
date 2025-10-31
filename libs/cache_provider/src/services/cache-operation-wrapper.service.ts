@@ -17,7 +17,7 @@ export class CacheOperationWrapper {
                 this.validateKey(key);
             }
 
-            const result = await action().catch(err => this.mapError(err, operation, key));
+            const result = await action();
 
             this.logger.debug(`Cache operation completed successfully: ${operation}`, { key });
             return result;
@@ -30,6 +30,7 @@ export class CacheOperationWrapper {
                 });
                 throw error;
             }
+            // Mapear error nativo a excepción personalizada
             this.mapError(error, operation, key);
         }
     }
@@ -50,31 +51,63 @@ export class CacheOperationWrapper {
     }
 
     private mapError(error: any, operation: string, key?: string): never {
-        this.logger.warn(`Mapping cache error for operation: ${operation}`, {
+        this.logger.error(`Mapping cache error for operation: ${operation}`, {
             key,
             errorCode: error.code,
-            errorMessage: error.message
+            errorMessage: error.message,
+            errorStack: error.stack
         });
 
-        if (['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET'].includes(error.code)) {
-            const connectionError = new ConnectionErrorException(`Connection error: ${error.code}`, ConnectionErrorException.ERROR_CODE, [`Operation: ${operation}`, `Key: ${key || 'N/A'}`]);
+        // Errores de conexión
+        if (['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'ECONNABORTED'].includes(error.code)) {
+            const connectionError = new ConnectionErrorException(
+                `Connection error during ${operation}: ${error.message}`,
+                ConnectionErrorException.ERROR_CODE,
+                [`Operation: ${operation}`, `Key: ${key || 'N/A'}`, `Error Code: ${error.code}`]
+            );
             this.logger.error('Connection error detected', { operation, key, errorCode: error.code });
             throw connectionError;
         }
-        // Timeout
-        if (error.code === 'ETIMEDOUT') {
-            const timeoutError = new OperationFailedException(`Timeout: ${operation}`, OperationFailedException.ERROR_CODE, [`Key: ${key || 'N/A'}`]);
+
+        // Errores de timeout
+        if (error.code === 'ETIMEDOUT' || error.message?.includes('timeout')) {
+            const timeoutError = new OperationFailedException(
+                `Timeout during ${operation}: ${error.message}`,
+                OperationFailedException.ERROR_CODE,
+                [`Operation: ${operation}`, `Key: ${key || 'N/A'}`, `Timeout Error`]
+            );
             this.logger.error('Timeout error detected', { operation, key });
             throw timeoutError;
         }
-        // Key no encontrada en GET
-        if (operation === 'get' && (error.message?.includes('not found') || !error)) {
-            const notFoundError = new KeyNotFoundException(`Key not found: ${key}`, KeyNotFoundException.ERROR_CODE, [`Key: ${key || 'N/A'}`]);
+
+        // Key no encontrada en GET (específico de Memcached)
+        if (operation === 'get' && (!error || error.message?.includes('not found'))) {
+            const notFoundError = new KeyNotFoundException(
+                `Key not found: ${key}`,
+                KeyNotFoundException.ERROR_CODE,
+                [`Operation: ${operation}`, `Key: ${key || 'N/A'}`]
+            );
             this.logger.warn('Key not found', { operation, key });
             throw notFoundError;
         }
 
-        const operationError = new OperationFailedException(`Failed ${operation}`, OperationFailedException.ERROR_CODE, [`Key: ${key || 'N/A'}`, `Error: ${error.message || 'Unknown'}`]);
+        // Errores específicos de Memcached
+        if (error.message?.includes('SERVER_ERROR') || error.message?.includes('CLIENT_ERROR')) {
+            const serverError = new OperationFailedException(
+                `Memcached server error during ${operation}: ${error.message}`,
+                OperationFailedException.ERROR_CODE,
+                [`Operation: ${operation}`, `Key: ${key || 'N/A'}`, `Server Error`]
+            );
+            this.logger.error('Memcached server error detected', { operation, key, error: error.message });
+            throw serverError;
+        }
+
+        // Error general - todos los demás errores
+        const operationError = new OperationFailedException(
+            `Failed ${operation}: ${error.message || 'Unknown error'}`,
+            OperationFailedException.ERROR_CODE,
+            [`Operation: ${operation}`, `Key: ${key || 'N/A'}`, `Error: ${error.message || 'Unknown'}`]
+        );
         this.logger.error('General operation failure', { operation, key, error: error.message || 'Unknown' });
         throw operationError;
     }

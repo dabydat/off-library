@@ -1,21 +1,25 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BuyABookCommand } from './buy-a-book.command';
-import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
+import { BOOK_REPOSITORY_PORT, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
 import { Uuid } from '@app/common-core/domain/value-objects';
 import { BookNotFoundException } from '../../../domain/exceptions';
 import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 import { Book } from '../../../domain/models/book';
+import { FACTUS_PORT, type FactusPort } from '../../../domain/ports/factus.port';
 
 @CommandHandler(BuyABookCommand)
 export class BuyABookHandler implements ICommandHandler<BuyABookCommand> {
     constructor(
-        @Inject(BOOK_REPOSITORY)
+        @Inject(BOOK_REPOSITORY_PORT)
         private readonly bookRepositoryPort: BookRepositoryPort,
         @Inject(LOGGING_PROVIDER_TOKEN)
         private readonly logger: LoggingProviderPort,
+        @Inject(FACTUS_PORT)
+        private readonly factusPort: FactusPort
     ) { }
     async execute(command: BuyABookCommand): Promise<void> {
+        this.factusPort.getMunicipalities();
         const bookId: Uuid = Uuid.create(command.bookId);
 
         const bookExists: Book | null = await this.bookRepositoryPort.findBookById(bookId)
@@ -26,6 +30,8 @@ export class BuyABookHandler implements ICommandHandler<BuyABookCommand> {
             operation: 'buy-book'
         });
         bookExists.buyBook();
+
+
         await this.bookRepositoryPort.save(bookExists);
     }
 }

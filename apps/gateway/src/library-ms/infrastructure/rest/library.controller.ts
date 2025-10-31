@@ -2,7 +2,7 @@ import { LibraryControllerMap, LibraryControllerName } from '@app/common-core/do
 import { ClientConstant } from '@app/common-core/infrastructure/constants/client.constants';
 import { ApiOkResponsePaginated } from '@app/common-core/infrastructure/decorators/api-ok-response-paginated.decorator';
 import { ErrorResponse } from '@app/common-core/infrastructure/rest/error.response';
-import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Put, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTooManyRequestsResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { GetBooksRequest } from './request/get-books.request';
@@ -11,6 +11,7 @@ import { GetBooksResponse } from './response/get-books.response';
 import { RestPaginationResponse } from '@app/common-core/infrastructure/rest/rest-pagination.response';
 import { CreateBookRequest } from './request/create-book.request';
 import { GetBookResponse } from './response/get-book.response';
+import { BuyBookRequest } from './request/buy-book.request';
 
 @Controller(LibraryControllerName)
 export class LibraryController {
@@ -92,5 +93,22 @@ export class LibraryController {
         };
 
         return bookResponse;
+    }
+
+    @Post(LibraryControllerMap.BUY_BOOK.ROUTE)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ description: 'Buy a Book' })
+    @ApiOkResponse({ type: String, description: 'Book purchased successfully' })
+    @ApiBadRequestResponse({ description: 'Invalid request parameters', type: ErrorResponse })
+    @ApiNotFoundResponse({ description: 'Resource not found', type: ErrorResponse })
+    @ApiInternalServerErrorResponse({ description: 'Unexpected server error', type: ErrorResponse })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized access', type: ErrorResponse })
+    @ApiTooManyRequestsResponse({ description: 'Too many requests - rate limit exceeded', type: ErrorResponse })
+    async buyBook(@Body() body: BuyBookRequest): Promise<any> {
+        const book = await firstValueFrom(this.libraryClient.send(LibraryControllerMap.BUY_BOOK.MESSAGE_PATTERN, {
+            ...body,
+        }));
+
+        return book;
     }
 }

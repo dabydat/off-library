@@ -7,7 +7,7 @@ import { BookAuthor } from './../../../domain/value-objects/book-author';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateBookCommand } from './create-book.command';
-import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
+import { BOOK_REPOSITORY_PORT, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
 import { Book, BookPrimitives } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
 import { Amount, TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
@@ -18,7 +18,7 @@ import { PUBLISHER_PORT, type PublisherPort } from '../../../domain/ports/publis
 @CommandHandler(CreateBookCommand)
 export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
     constructor(
-        @Inject(BOOK_REPOSITORY)
+        @Inject(BOOK_REPOSITORY_PORT)
         private readonly bookRepositoryPort: BookRepositoryPort,
         @Inject(PUBLISHER_PORT)
         private readonly publisherPort: PublisherPort

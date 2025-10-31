@@ -2,14 +2,14 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetBooksQuery } from './get-books.query';
 import { Inject } from '@nestjs/common';
 import { Book } from '../../../domain/models/book';
-import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
+import { BOOK_REPOSITORY_PORT, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
 import { Pagination } from '@app/common-core/domain/value-objects/pagination';
 import { DomainPagination } from '@app/common-core/domain/types/domain-pagination.type';
 
 @QueryHandler(GetBooksQuery)
 export class GetBooksHandler implements IQueryHandler<GetBooksQuery> {
     constructor(
-        @Inject(BOOK_REPOSITORY)
+        @Inject(BOOK_REPOSITORY_PORT)
         private readonly bookRepository: BookRepositoryPort
     ) { }
 

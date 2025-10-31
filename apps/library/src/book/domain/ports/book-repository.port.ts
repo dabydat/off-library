@@ -4,7 +4,7 @@ import { DomainPagination } from "@app/common-core/domain/types/domain-paginatio
 import { BookISBN } from "../value-objects";
 import { Uuid } from "@app/common-core/domain/value-objects";
 
-export const BOOK_REPOSITORY = Symbol('BOOK_REPOSITORY');
+export const BOOK_REPOSITORY_PORT = Symbol('BOOK_REPOSITORY');
 
 export interface BookRepositoryPort {
     findAll(pagination: Pagination): Promise<DomainPagination<Book[]>>;

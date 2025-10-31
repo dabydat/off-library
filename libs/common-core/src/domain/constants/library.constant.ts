@@ -6,6 +6,7 @@ export const LibraryControllerName: string = 'library';
 export const LibraryRoutes = {
     GET_BOOKS: '',
     CREATE_BOOK: '/create-book',
+    BUY_BOOK: '/buy-book',
 } as const;
 
 export const LibraryControllerMap: Record<
@@ -20,4 +21,8 @@ export const LibraryControllerMap: Record<
         ROUTE: LibraryRoutes.CREATE_BOOK,
         MESSAGE_PATTERN: LibraryMessagePatterns.CREATE_BOOK,
     },
+    BUY_BOOK: {
+        ROUTE: LibraryRoutes.BUY_BOOK,
+        MESSAGE_PATTERN: LibraryMessagePatterns.BUY_BOOK,
+    }
 } as const;

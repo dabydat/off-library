@@ -1,4 +1,4 @@
-export const QUEUE_SERVICE = Symbol('QUEUE_SERVICE');
+export const QUEUE_SERVICE_PORT = Symbol('QUEUE_SERVICE');
 
 export interface QueueService {
     publish: (topic: string, key: string, message: any) => Promise<void>;

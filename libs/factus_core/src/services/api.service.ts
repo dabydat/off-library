@@ -8,8 +8,9 @@ import { InvalidRequestException, NotFoundRequestException, UnhandledApiStatusEx
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { AuthFactus } from '../models/auth/auth.factus';
 import { GrantType } from '../enums/grand-type.enum';
-import { type CacheProvider, MEMCACHED_CLIENT_TOKEN } from '@app/cache_provider';
-import { TokenService } from '../utils/token.service';
+import { CACHE_PROVIDER_SERVICE_TOKEN } from '@app/cache_provider';
+import { type CacheProviderPort } from '@app/cache_provider/interfaces/services/cache-provider.port';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class ApiService {
@@ -32,12 +33,11 @@ export class ApiService {
     constructor(
         private readonly httpService: HttpService,
         @Inject(FACTUS_TOKEN) options: FactusOptions,
-        @Inject(MEMCACHED_CLIENT_TOKEN) private readonly cacheClient: CacheProvider,
+        @Inject(CACHE_PROVIDER_SERVICE_TOKEN) private readonly cacheClient: CacheProviderPort,
         private readonly tokenService: TokenService
     ) {
         this.options = options;
         assert(this.options.url, 'URL must be defined');
-        assert(this.options.grantType, 'Grant type must be defined');
         assert(this.options.clientId, 'Client ID must be defined');
         assert(this.options.clientSecret, 'Client secret must be defined');
         assert(this.options.username, 'Username must be defined');
@@ -56,14 +56,14 @@ export class ApiService {
         this.httpService.axiosRef.interceptors.response.use((responseConfig: AxiosResponse): AxiosResponse<any, any> => responseConfig);
     }
 
-    private async fetchToken(): Promise<AuthFactus> {
+    public async fetchToken(): Promise<AuthFactus> {
         // 1. Verificar si hay token válido en cache
         const cachedToken = await this.tokenService.getValidTokenFromCache();
         if (cachedToken) return cachedToken;
 
         // 2. Intentar refresh token si existe
         const refreshCached = await this.cacheClient.get({ key: 'factus_refresh_token' });
-        if (refreshCached.exists) {
+        if (refreshCached && refreshCached.exists && refreshCached.value) {
             try {
                 const refreshedToken = await this.refreshToken(refreshCached.value as string);
                 await this.tokenService.saveTokenWithMetadata(refreshedToken);

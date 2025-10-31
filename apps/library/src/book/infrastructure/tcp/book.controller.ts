@@ -10,6 +10,8 @@ import { Book } from '../../domain/models/book';
 import { BookResponse } from './response/book.response';
 import { CreateBookRequest } from './request/create-book.request';
 import { CreateBookCommand } from '../../application/commands/create-book/create-book.command';
+import { BuyABookCommand } from '../../application/commands/buy-a-book/buy-a-book.command';
+import { BuyBookRequest } from './request/buy-book.request';
 
 @Controller()
 export class BookController {
@@ -52,5 +54,14 @@ export class BookController {
         );
 
         return BookMapper.toBookResponse(createBook);
+    }
+
+    @MessagePattern(LibraryControllerMap.BUY_BOOK.MESSAGE_PATTERN)
+    public async buyBook(payload: BuyBookRequest): Promise<any> {
+        const book = await this.commandBus.execute(
+            new BuyABookCommand(payload.id,)
+        );
+
+        return book;
     }
 }

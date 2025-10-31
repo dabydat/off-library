@@ -122,6 +122,8 @@ services:
       - ../apps/library:/app/apps/library
       - ../libs/common-core:/app/libs/common-core
       - ../libs/logging_provider:/app/libs/logging_provider
+      - ../libs/cache_provider:/app/libs/cache_provider
+      - ../libs/factus_core:/app/libs/factus_core
       - ../data:/app/data
     networks:
       - off_library_network

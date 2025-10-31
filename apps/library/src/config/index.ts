@@ -22,6 +22,17 @@ export default (): ConfigEnvironment => {
       clientId: value.KAFKA_CLIENT_ID,
       maxTries: value.KAFKA_MAX_TRIES,
       retryDelayMs: value.KAFKA_RETRY_DELAY_MS,
+    },
+    factus: {
+      urlApi: value.FACTUS_URL_API,
+      username: value.FACTUS_USERNAME,
+      password: value.FACTUS_PASSWORD,
+      clientId: value.FACTUS_CLIENT_ID,
+      clientSecret: value.FACTUS_CLIENT_SECRET,
+    },
+    cache: {
+      host: value.CACHE_HOST,
+      port: value.CACHE_PORT,
     }
-  };
+  }
 };
