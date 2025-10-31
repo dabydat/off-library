@@ -22,11 +22,29 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/cache_provider": [
+        "libs/cache_provider/src"
+      ],
+      "@app/cache_provider/*": [
+        "libs/cache_provider/src/*"
+      ],
       "@app/common-core": [
         "libs/common-core/src"
       ],
       "@app/common-core/*": [
         "libs/common-core/src/*"
+      ],
+      "@app/factus_core": [
+        "libs/factus_core/src"
+      ],
+      "@app/factus_core/*": [
+        "libs/factus_core/src/*"
+      ],
+      "@app/logging_provider": [
+        "libs/logging_provider/src"
+      ],
+      "@app/logging_provider/*": [
+        "libs/logging_provider/src/*"
       ]
     }
   },

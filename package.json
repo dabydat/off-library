@@ -26,6 +26,7 @@
     "migration:rollback": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./apps/$npm_config_api/src/config/database/data-source.ts"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -36,12 +37,14 @@
     "@nestjs/typeorm": "^11.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/joi": "^17.2.2",
+    "axios": "^1.13.1",
     "better-sqlite3": "^12.4.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "date-fns-tz": "^3.2.0",
     "joi": "^18.0.1",
     "kafkajs": "^2.2.4",
+    "memcached": "^2.2.2",
     "nest-winston": "^1.10.2",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
@@ -99,8 +102,11 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/../src/$1",
-      "^@app/common-core(|/.*)$": "<rootDir>/libs/common-core/src/$1"
+      "^@app/cache_provider(|/.*)$": "<rootDir>/libs/cache_provider/src/$1",
+      "^@app/common-core(|/.*)$": "<rootDir>/libs/common-core/src/$1",
+      "^@app/factus_core(|/.*)$": "<rootDir>/libs/factus_core/src/$1",
+      "^@app/logging_provider(|/.*)$": "<rootDir>/libs/logging_provider/src/$1",
+      "^src/(.*)$": "<rootDir>/../src/$1"
     }
   }
 }

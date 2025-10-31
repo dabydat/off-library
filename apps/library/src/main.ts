@@ -3,7 +3,6 @@ import { LibraryModule } from './library.module';
 import { INestApplication, INestMicroservice, Logger, NestHybridApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientOptions, Transport } from '@nestjs/microservices';
-import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app: INestApplication<any> = await NestFactory.create(LibraryModule);
@@ -14,7 +13,7 @@ async function bootstrap() {
 
   const microservice: INestMicroservice = app.connectMicroservice(
     { transport: Transport.TCP, options: { host, port } } as ClientOptions,
-    { inheritAppConfig: true } as NestHybridApplicationOptions,
+    { inheritAppConfig: false } as NestHybridApplicationOptions,
   );
 
   app.useGlobalPipes(
@@ -23,8 +22,5 @@ async function bootstrap() {
 
   await app.init();
   await microservice.listen();
-
-  const logger: Logger = new Logger();
-  logger.log(`Running in ${port}`);
 }
 bootstrap();

@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/off-library",
   "projects": {
+    "cache_provider": {
+      "type": "library",
+      "root": "libs/cache_provider",
+      "entryFile": "index",
+      "sourceRoot": "libs/cache_provider/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/cache_provider/tsconfig.lib.json"
+      }
+    },
     "common-core": {
       "type": "library",
       "root": "libs/common-core",
@@ -17,6 +26,15 @@
       "sourceRoot": "libs/common-core/src",
       "compilerOptions": {
         "tsConfigPath": "libs/common-core/tsconfig.lib.json"
+      }
+    },
+    "factus_core": {
+      "type": "library",
+      "root": "libs/factus_core",
+      "entryFile": "index",
+      "sourceRoot": "libs/factus_core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/factus_core/tsconfig.lib.json"
       }
     },
     "gateway": {
@@ -35,6 +53,15 @@
       "sourceRoot": "apps/library/src",
       "compilerOptions": {
         "tsConfigPath": "apps/library/tsconfig.app.json"
+      }
+    },
+    "logging_provider": {
+      "type": "library",
+      "root": "libs/logging_provider",
+      "entryFile": "index",
+      "sourceRoot": "libs/logging_provider/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/logging_provider/tsconfig.lib.json"
       }
     },
     "off-library": {
