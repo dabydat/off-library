@@ -28,8 +28,33 @@ export class LibraryController {
     @ApiInternalServerErrorResponse({ description: 'Unexpected server error', type: ErrorResponse })
     @ApiUnauthorizedResponse({ description: 'Unauthorized access', type: ErrorResponse })
     @ApiTooManyRequestsResponse({ description: 'Too many requests - rate limit exceeded', type: ErrorResponse })
-    async getBooks(@Query() query: GetBooksRequest): Promise<RestPaginationResponse<GetBooksResponse>> {
-        return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.GET_BOOKS.MESSAGE_PATTERN, query));
+    async getBooks(@Query() query: GetBooksRequest): Promise<RestPaginationResponse<GetBooksResponse[]>> {
+        const books = await firstValueFrom(this.libraryClient.send(LibraryControllerMap.GET_BOOKS.MESSAGE_PATTERN, query));
+        const booksResponse: GetBooksResponse[] = books.elements.map((book: any) => ({
+            id: book.id,
+            name: book.name,
+            author: book.author,
+            isbn: book.isbn,
+            publisher: book.publisher,
+            genre: book.genre,
+            pages: book.pages,
+            language: book.language,
+            summary: book.summary,
+            price: book.price,
+            publication_date: book.publicationDate,
+            available_copies: book.availableCopies,
+            stars: book.starsCount,
+            created_at: book.createdAt,
+            updated_at: book.updatedAt,
+        }));
+
+        return {
+            elements: booksResponse,
+            total_elements: books.totalElements,
+            total_pages: books.totalPages,
+            limit: books.limit,
+            page: books.page,
+        };
     }
 
     @Put(LibraryControllerMap.CREATE_BOOK.ROUTE)
@@ -42,10 +67,30 @@ export class LibraryController {
     @ApiUnauthorizedResponse({ description: 'Unauthorized access', type: ErrorResponse })
     @ApiTooManyRequestsResponse({ description: 'Too many requests - rate limit exceeded', type: ErrorResponse })
     async createBook(@Body() body: CreateBookRequest): Promise<GetBookResponse> {
-        return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN, {
+        const book = await firstValueFrom(this.libraryClient.send(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN, {
             ...body,
             publicationDate: body.publication_date,
             availableCopies: body.available_copies,
         }));
+
+        const bookResponse: GetBookResponse = {
+            id: book.id,
+            name: book.name,
+            author: book.author,
+            isbn: book.isbn,
+            publisher: book.publisher,
+            genre: book.genre,
+            pages: book.pages,
+            language: book.language,
+            summary: book.summary,
+            price: book.price,
+            publication_date: book.publicationDate,
+            available_copies: book.availableCopies,
+            stars: book.starsCount,
+            created_at: book.createdAt,
+            updated_at: book.updatedAt,
+        };
+
+        return bookResponse;
     }
 }
