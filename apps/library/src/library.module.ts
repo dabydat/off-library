@@ -24,11 +24,11 @@ import { APP_FILTER } from '@nestjs/core';
       useFactory: (configService: ConfigService) => ({
         level: configService.get('LOG_LEVEL', 'info'),
         transports: [
-          new winston.transports.Console(), // ✅ Sin formato - viene del provider
+          new winston.transports.Console(),
           ...(configService.get('NODE_ENV') === 'production' ? [
             new winston.transports.File({
               filename: 'logs/library-app.log',
-              format: winston.format.json() // Solo para archivos usamos JSON
+              format: winston.format.json()
             })
           ] : [])
         ]

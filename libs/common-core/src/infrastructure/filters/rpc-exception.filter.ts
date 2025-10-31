@@ -23,7 +23,6 @@ export class RpcGlobalExceptionFilter implements ExceptionFilter {
 
         // Extraer y construir payload estructurado
         const payload = this.extractor.extract(exception);
-
         this.logger.debug('RPC Payload:', JSON.stringify(payload));
 
         return throwError(() => new RpcException(payload));

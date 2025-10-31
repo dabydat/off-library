@@ -1,6 +1,6 @@
 import * as winston from 'winston';
 import { WinstonOptions } from '../interfaces';
-import { NestJSFormatter } from '../formatters';
+import { LogFormatter } from '../formatters';
 
 export class LoggerFactory {
     /**
@@ -10,7 +10,7 @@ export class LoggerFactory {
         return winston.createLogger({
             level: options.level || 'info',
             silent: options.silent || false,
-            format: options.format || NestJSFormatter.createFormat(),
+            format: options.format || LogFormatter.createFormat(),
             transports: options.transports || [
                 new winston.transports.Console()
             ],

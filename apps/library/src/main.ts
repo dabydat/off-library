@@ -13,7 +13,7 @@ async function bootstrap() {
 
   const microservice: INestMicroservice = app.connectMicroservice(
     { transport: Transport.TCP, options: { host, port } } as ClientOptions,
-    { inheritAppConfig: false } as NestHybridApplicationOptions,
+    { inheritAppConfig: true } as NestHybridApplicationOptions,
   );
 
   app.useGlobalPipes(
@@ -22,5 +22,8 @@ async function bootstrap() {
 
   await app.init();
   await microservice.listen();
+
+  const logger: Logger = new Logger();
+  logger.log(`Running in ${port}`);
 }
 bootstrap();

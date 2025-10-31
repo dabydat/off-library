@@ -1,1 +1,1 @@
-export * from './nestjs-formatter';
+export * from './log-formatter';
