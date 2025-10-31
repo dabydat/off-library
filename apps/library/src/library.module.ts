@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LoggingProviderModule } from '@app/logging_provider';
+import * as winston from 'winston';
 import config from './config';
 import { configValidation } from './config/config-validation';
 import { BookModule } from './book/book.module';
 import { DatabaseModule } from './config/database/database.module';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
-import { TransformableInfo } from 'logform';
+
 import { RpcGlobalExceptionFilter } from '@app/common-core/infrastructure/filters/rpc-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
 
@@ -18,29 +18,21 @@ import { APP_FILTER } from '@nestjs/core';
       envFilePath: `apps/library/.env`,
       validationSchema: configValidation,
     }),
-    WinstonModule.forRoot({
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.printf(
-              ({
-                timestamp,
-                level,
-                message,
-                ...meta
-              }: TransformableInfo): string => {
-                return JSON.stringify({
-                  timestamp,
-                  level,
-                  message,
-                  ...meta,
-                });
-              },
-            ),
-          ),
-        }),
-      ],
+    LoggingProviderModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        level: configService.get('LOG_LEVEL', 'info'),
+        transports: [
+          new winston.transports.Console(),
+          ...(configService.get('NODE_ENV') === 'production' ? [
+            new winston.transports.File({
+              filename: 'logs/library-app.log',
+              format: winston.format.json()
+            })
+          ] : [])
+        ]
+      })
     }),
     DatabaseModule,
     BookModule,

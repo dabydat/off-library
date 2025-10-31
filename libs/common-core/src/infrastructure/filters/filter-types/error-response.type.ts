@@ -1,3 +1,18 @@
+export interface ErrorDetail {
+    message: string;
+    code: string;
+    param?: string;
+}
+
+export interface ErrorPayload {
+    status: number;
+    details: ErrorDetail[];
+    meta: {
+        exceptionType: string;
+        exceptionName?: string;
+    };
+}
+
 export type ErrorResponseType = {
     status: 'error';
     timestamp: string;
@@ -14,3 +29,4 @@ export type ErrorResponseType = {
         handler: string;
     };
 }
+

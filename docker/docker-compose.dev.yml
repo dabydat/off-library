@@ -15,6 +15,17 @@ services:
     networks:
       - off_library_network
 
+  memcached:
+    container_name: memcached
+    image: memcached:1.6.15
+    restart: unless-stopped
+    ports:
+      - "11211:11211"
+    expose:
+      - 11211
+    networks:
+      - off_library_network
+
   zookeeper:
     container_name: zookeeper
     image: confluentinc/cp-zookeeper:7.4.3
@@ -109,6 +120,7 @@ services:
     volumes:
       - ../apps/library:/app/apps/library
       - ../libs/common-core:/app/libs/common-core
+      - ../libs/logging_provider:/app/libs/logging_provider
       - ../data:/app/data
     networks:
       - off_library_network

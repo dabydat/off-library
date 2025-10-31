@@ -1,8 +1,7 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, EachMessagePayload, Kafka, Producer } from 'kafkajs';
-import { Logger } from 'winston';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 import { QueueService } from '@app/common-core/domain/services/queue.service';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class KafkaService implements QueueService, OnModuleDestroy {
 
     public constructor(
         private readonly configService: ConfigService,
-        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+        @Inject(LOGGING_PROVIDER_TOKEN) private readonly logger: LoggingProviderPort,
     ) {
         const clientId: string = this.configService.get<string>('kafka.clientId')!;
         const broker: string = this.configService.get<string>('kafka.broker')!;
@@ -29,9 +28,14 @@ export class KafkaService implements QueueService, OnModuleDestroy {
 
     private async connectProducer(): Promise<void> {
         try {
+            this.logger.info('Connecting Kafka producer', { operation: 'connect_producer' });
             await this.producer.connect();
+            this.logger.info('Kafka producer connected successfully', { status: 'connected' });
         } catch (error) {
-            this.logger.error(`Failed to connect producer: ${error.message}`);
+            this.logger.error(`Failed to connect producer: ${error.message}`, {
+                operation: 'connect_producer',
+                error: error.message
+            });
             throw error;
         }
     }

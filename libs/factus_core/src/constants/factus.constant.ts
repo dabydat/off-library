@@ -1,0 +1,3 @@
+export const FACTUS_MODULE_TOKEN = Symbol('FACTUS_MODULE_TOKEN');
+export const FACTUS_TOKEN = Symbol('FACTUS_TOKEN');
+export const FACTUS_PROVIDER_TOKEN = Symbol('FACTUS_PROVIDER_TOKEN');

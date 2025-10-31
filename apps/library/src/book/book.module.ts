@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DatabaseModule } from '../config/database/database.module';
+
 import { CommandHandlers } from './application/commands';
 import { EventHandlers } from './application/event-handlers';
 import { BookController } from './infrastructure/tcp/book.controller';
@@ -16,8 +17,7 @@ import { BookRepositoryAdapter } from './infrastructure/adapters/book.repository
 import { PUBLISHER_PORT } from './domain/ports/publisher.port';
 import { PublisherAdapter } from './infrastructure/adapters/publisher.adapter';
 import { BookEventConsumerService } from './infrastructure/queue/listeners/book-event-consumer.service';
-import { LOGGER_PORT } from './domain/ports/logger.port';
-import { LoggerAdapter } from './infrastructure/adapters/logger.adapter';
+
 
 @Module({
     imports: [
@@ -35,10 +35,6 @@ import { LoggerAdapter } from './infrastructure/adapters/logger.adapter';
         {
             provide: PUBLISHER_PORT,
             useClass: PublisherAdapter,
-        },
-        {
-            provide: LOGGER_PORT,
-            useClass: LoggerAdapter
         },
         {
             provide: TRANSACTION_EXECUTION_PORT,
