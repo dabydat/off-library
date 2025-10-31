@@ -8,7 +8,8 @@ import { InvalidRequestException, NotFoundRequestException, UnhandledApiStatusEx
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { AuthFactus } from '../models/auth/auth.factus';
 import { GrantType } from '../enums/grand-type.enum';
-
+import { type CacheProvider, MEMCACHED_CLIENT_TOKEN } from '@app/cache_provider';
+import { TokenService } from '../utils/token.service';
 
 @Injectable()
 export class ApiService {
@@ -31,6 +32,8 @@ export class ApiService {
     constructor(
         private readonly httpService: HttpService,
         @Inject(FACTUS_TOKEN) options: FactusOptions,
+        @Inject(MEMCACHED_CLIENT_TOKEN) private readonly cacheClient: CacheProvider,
+        private readonly tokenService: TokenService
     ) {
         this.options = options;
         assert(this.options.url, 'URL must be defined');
@@ -50,12 +53,28 @@ export class ApiService {
             (error) => Promise.reject(new Error(error)),
         );
 
-        this.httpService.axiosRef.interceptors.response.use((
-            responseConfig: AxiosResponse
-        ): AxiosResponse<any, any> => responseConfig);
+        this.httpService.axiosRef.interceptors.response.use((responseConfig: AxiosResponse): AxiosResponse<any, any> => responseConfig);
     }
 
     private async fetchToken(): Promise<AuthFactus> {
+        // 1. Verificar si hay token válido en cache
+        const cachedToken = await this.tokenService.getValidTokenFromCache();
+        if (cachedToken) return cachedToken;
+
+        // 2. Intentar refresh token si existe
+        const refreshCached = await this.cacheClient.get({ key: 'factus_refresh_token' });
+        if (refreshCached.exists) {
+            try {
+                const refreshedToken = await this.refreshToken(refreshCached.value as string);
+                await this.tokenService.saveTokenWithMetadata(refreshedToken);
+                return refreshedToken;
+            } catch (error) {
+                // Refresh falló, limpiar refresh token
+                await this.cacheClient.delete({ key: 'factus_refresh_token' });
+            }
+        }
+
+        // 3. Login completo como último recurso
         const response = await fetch(`${this.options.url}/oauth/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,6 +86,43 @@ export class ApiService {
                 password: this.options.password,
             }),
         });
+
+        if (!response.ok) {
+            throw new Error(`Login failed: ${response.status} ${response.statusText}`);
+        }
+
+        const tokenData: AuthFactus = await response.json();
+
+        // Guardar token con metadata
+        await this.tokenService.saveTokenWithMetadata(tokenData);
+
+        // Guardar refresh token si existe (con TTL más largo)
+        if (tokenData.refresh_token) {
+            await this.cacheClient.set({
+                key: 'factus_refresh_token',
+                value: tokenData.refresh_token,
+                ttl: 3600,
+            });
+        }
+
+        return tokenData;
+    }
+
+    private async refreshToken(refreshToken: string): Promise<AuthFactus> {
+        const response = await fetch(`${this.options.url}/oauth/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                grant_type: GrantType.REFRESH_TOKEN,
+                client_id: this.options.clientId,
+                client_secret: this.options.clientSecret,
+                refresh_token: refreshToken,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Refresh token failed: ${response.status}`);
+        }
 
         return await response.json();
     }
@@ -88,13 +144,7 @@ export class ApiService {
 
     private async request<T>(method: 'get' | 'post' | 'patch' | 'delete', path: string, config: AxiosRequestConfig = {}, extractData = true): Promise<T> {
         try {
-            const response = await firstValueFrom(
-                this.httpService.request({
-                    method,
-                    url: path,
-                    ...config,
-                }),
-            );
+            const response = await firstValueFrom(this.httpService.request({ method, url: path, ...config }));
             return extractData ? response.data?.data : response.data;
         } catch (error) {
             this.handleError(error);
@@ -108,12 +158,7 @@ export class ApiService {
 
     public post<T>(path: string, payload: any, extractData = true, headers?: Record<string, string>,
     ): Promise<T> {
-        return this.request<T>(
-            'post',
-            path,
-            { data: payload, headers },
-            extractData,
-        );
+        return this.request<T>('post', path, { data: payload, headers }, extractData);
     }
 
     public patch<T>(path: string, payload: any, extractData = false): Promise<T> {

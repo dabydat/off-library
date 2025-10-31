@@ -1,17 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import Memcached = require('memcached');
-import { InjectMemcached } from '../decorators';
+import { MEMCACHED_CLIENT_TOKEN } from '../constants';
 import { CacheProvider } from '../interfaces/services/cache.provider';
 import { GetCacheRequest, GetCacheResponse, SetCacheRequest, SetCacheResponse, DeleteCacheRequest, DeleteCacheResponse, IncrementCacheRequest, IncrementCacheResponse, DecrementCacheRequest, DecrementCacheResponse, FlushCacheResponse } from '@app/cache_provider/interfaces';
 import { CacheOperationWrapper } from './cache-operation-wrapper.service';
-import { LoggingProviderService } from '../../../logging_provider/src';
+import { LOGGING_PROVIDER_TOKEN } from '../../../logging_provider/src';
+import type { LoggingProviderPort } from '../../../logging_provider/src';
 
 @Injectable()
 export class MemcachedService implements CacheProvider {
   constructor(
-    @InjectMemcached() private readonly memcachedClient: Memcached,
+    @Inject(MEMCACHED_CLIENT_TOKEN) private readonly memcachedClient: Memcached,
     private readonly operationWrapper: CacheOperationWrapper,
-    private readonly logger: LoggingProviderService
+    @Inject(LOGGING_PROVIDER_TOKEN) private readonly logger: LoggingProviderPort
   ) { }
 
   async get(request: GetCacheRequest): Promise<GetCacheResponse> {

@@ -1,16 +1,16 @@
 import { ExceptionFilter, Catch, Logger, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Observable, throwError } from 'rxjs';
-import { ExceptionExtractorService } from './solid/exception-extractor.service';
+import { SimpleExceptionHandler } from './services/simple-exception-handler';
 
 @Catch()
 @Injectable()
 export class RpcGlobalExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(RpcGlobalExceptionFilter.name);
-    private readonly extractor: ExceptionExtractorService;
+    private readonly handler: SimpleExceptionHandler;
 
     constructor() {
-        this.extractor = new ExceptionExtractorService();
+        this.handler = new SimpleExceptionHandler();
     }
 
     catch(exception: any): Observable<never> {
@@ -22,7 +22,7 @@ export class RpcGlobalExceptionFilter implements ExceptionFilter {
         }
 
         // Extraer y construir payload estructurado
-        const payload = this.extractor.extract(exception);
+        const payload = this.handler.process(exception);
         this.logger.debug('RPC Payload:', JSON.stringify(payload));
 
         return throwError(() => new RpcException(payload));

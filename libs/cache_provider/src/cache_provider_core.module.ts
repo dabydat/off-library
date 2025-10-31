@@ -6,7 +6,6 @@ import {
 } from './interfaces';
 import {
   CACHE_PROVIDER_MODULE_TOKEN,
-  CACHE_PROVIDER_TOKEN,
   MEMCACHED_CLIENT_TOKEN,
 } from './constants';
 import { getMemcachedClient } from './providers';
@@ -18,22 +17,6 @@ import {
 @Global()
 @Module({})
 export class CacheProviderCoreModule {
-  private static readonly commonProviders: Provider[] = [
-    {
-      provide: CACHE_PROVIDER_TOKEN,
-      useClass: MemcachedService,
-    },
-    MemcachedService,
-    CacheOperationWrapper,
-  ];
-
-  private static readonly commonExports = [
-    CACHE_PROVIDER_TOKEN,
-    MEMCACHED_CLIENT_TOKEN,
-    MemcachedService,
-    CacheOperationWrapper,
-  ];
-
   public static forRoot(options: CacheProviderOptions): DynamicModule {
     return {
       module: CacheProviderCoreModule,
@@ -42,9 +25,10 @@ export class CacheProviderCoreModule {
           provide: MEMCACHED_CLIENT_TOKEN,
           useValue: getMemcachedClient({ host: options.host }),
         },
-        ...this.commonProviders,
+        MemcachedService,
+        CacheOperationWrapper,
       ],
-      exports: this.commonExports,
+      exports: [MemcachedService],
     };
   }
 
@@ -55,16 +39,17 @@ export class CacheProviderCoreModule {
         ...(options.imports || []),
       ],
       providers: [
-        this.createAsyncProviders(options)[0],
+        ...this.createAsyncProviders(options),
         {
           provide: MEMCACHED_CLIENT_TOKEN,
           inject: [CACHE_PROVIDER_MODULE_TOKEN],
           useFactory: (cacheOptions: CacheProviderOptions) =>
             getMemcachedClient({ host: cacheOptions.host }),
         },
-        ...this.commonProviders,
+        MemcachedService,
+        CacheOperationWrapper,
       ],
-      exports: this.commonExports,
+      exports: [MemcachedService],
     };
   }
 

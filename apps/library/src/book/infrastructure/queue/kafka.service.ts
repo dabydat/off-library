@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Consumer, EachMessagePayload, Kafka, Producer } from 'kafkajs';
-import { LOGGING_PROVIDER_PORT, type LoggingProviderPort } from '@app/logging_provider';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 import { QueueService } from '@app/common-core/domain/services/queue.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class KafkaService implements QueueService, OnModuleDestroy {
 
     public constructor(
         private readonly configService: ConfigService,
-        @Inject(LOGGING_PROVIDER_PORT) private readonly logger: LoggingProviderPort,
+        @Inject(LOGGING_PROVIDER_TOKEN) private readonly logger: LoggingProviderPort,
     ) {
         const clientId: string = this.configService.get<string>('kafka.clientId')!;
         const broker: string = this.configService.get<string>('kafka.broker')!;

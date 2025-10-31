@@ -5,7 +5,7 @@ export interface GetCacheRequest {
 export interface SetCacheRequest {
   key: string;
   value: string | number | boolean | object;
-  ttl?: number; // Time to live in seconds
+  ttl?: number;
 }
 
 export interface DeleteCacheRequest {

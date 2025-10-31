@@ -8,43 +8,38 @@ import { ApiService } from './services/api.service';
 @Module({})
 export class FactusCoreModule {
   public static forRoot(options: FactusOptions): DynamicModule {
-    const provider: Provider = {
-      provide: FACTUS_TOKEN,
-      useValue: options,
-    };
-
     return {
       module: FactusCoreModule,
       providers: [
-        provider,
+        {
+          provide: FACTUS_TOKEN,
+          useValue: options,
+        },
         ApiService,
       ],
-      exports: [],
+      exports: [ApiService],
       imports: [HttpModule.register({})],
     };
   }
 
   public static forRootAsync(options: FactusAsyncOptions): DynamicModule {
-
     if (!options.useFactory) {
       throw new Error('useFactory is required for forRootAsync');
     }
-
-    const asyncProvider: Provider = {
-      inject: [...(options.inject || [])],
-      provide: FACTUS_TOKEN,
-      useFactory: options.useFactory,
-    };
 
     return {
       module: FactusCoreModule,
       imports: [...(options.imports ?? []), HttpModule.register({})],
       providers: [
-        asyncProvider,
+        {
+          inject: [...(options.inject || [])],
+          provide: FACTUS_TOKEN,
+          useFactory: options.useFactory,
+        },
         ...this.createAsyncProviders(options),
         ApiService
       ],
-      exports: [],
+      exports: [ApiService],
     };
   }
 

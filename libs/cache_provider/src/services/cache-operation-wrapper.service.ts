@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { LoggingProviderService } from '../../../logging_provider/src';
+import { Inject, Injectable } from '@nestjs/common';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '../../../logging_provider/src';
 import { CacheException, ConnectionErrorException, InvalidKeyCharactersException, InvalidKeyException, KeyNotFoundException, KeyTooLongException, OperationFailedException } from '../exceptions';
 
 @Injectable()
 export class CacheOperationWrapper {
     private readonly MAX_KEY_LENGTH = 250;
 
-    constructor(private readonly logger: LoggingProviderService) { }
+    constructor(@Inject(LOGGING_PROVIDER_TOKEN) private readonly logger: LoggingProviderPort) { }
 
     public async execute<T>(operation: string, key: string | undefined, action: () => Promise<T>): Promise<T> {
         try {

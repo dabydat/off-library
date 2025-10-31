@@ -1,25 +1,25 @@
+import { LoggingProviderService } from '@app/logging_provider';
 import { ArgumentsHost, Catch, ExceptionFilter, Logger, Injectable } from '@nestjs/common';
 import type { Response, Request } from 'express';
-import { ExceptionExtractorService } from './solid/exception-extractor.service';
+import { SimpleExceptionHandler } from './services/simple-exception-handler';
 import { ErrorResponseType } from './filter-types/error-response.type';
-import { HandlerDetectorService } from './solid/handler-detector.service';
 
 @Catch()
 @Injectable()
 export class GlobalExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(GlobalExceptionFilter.name);
-    private readonly extractor: ExceptionExtractorService;
-    private readonly handlerDetector: HandlerDetectorService;
+    private readonly handler: SimpleExceptionHandler;
 
-    constructor() {
-        this.extractor = new ExceptionExtractorService();
-        this.handlerDetector = new HandlerDetectorService();
+    constructor(
+        private readonly logger: LoggingProviderService
+    ) {
+        this.handler = new SimpleExceptionHandler();
     }
 
     catch(exception: any, host: ArgumentsHost): void {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
+
         const payload = this.extractPayload(exception);
 
         const errorResponse: ErrorResponseType = {
@@ -31,7 +31,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             meta: {
                 exceptionType: payload.meta?.exceptionType || this.getExceptionType(exception),
                 exceptionName: payload.meta?.exceptionName || exception?.exceptionName || exception?.name,
-                handler: this.handlerDetector.detect(exception),
+                handler: this.handler.detectHandler(exception),
             },
         };
 
@@ -51,7 +51,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         }
 
         // Caso contrario, extraer localmente
-        return this.extractor.extract(exception);
+        return this.handler.process(exception);
     }
 
     private getExceptionType(exception: any): string {
