@@ -8,15 +8,17 @@ export class LogFormatter {
         return winston.format.combine(
             winston.format.timestamp(),
             winston.format.errors({ stack: true }),
-            winston.format.printf(({ timestamp, level, message, context, stack }) => {
-                const contextName = context || 'Application';
-                const stackStr = stack ? `\n${stack}` : '';
+            winston.format.printf((info) => {
+                const { timestamp, level, message, context, stack, ...meta } = info;
+
+                const actualContext = context || meta.context;
+                const stackStr = stack ? `${stack}` : '';
 
                 // Aplicar colores según el nivel
-                const coloredMessage = this.applyLevelColors(
+                const coloredMessage = LogFormatter.applyLevelColors(
                     String(level),
                     String(timestamp),
-                    String(contextName),
+                    actualContext,
                     String(message),
                     stackStr
                 );
@@ -29,9 +31,15 @@ export class LogFormatter {
     /**
      * Aplica colores específicos según el nivel del log - Solo formato JSON
      */
-    private static applyLevelColors(level: string, timestamp: string, contextName: string, message: string, stackStr: string): string {
+    private static applyLevelColors(
+        level: string,
+        timestamp: string,
+        contextData: any,
+        message: string,
+        stackStr: string
+    ): string {
         // Colores para JSON según tus preferencias
-        const color = {
+        const colors = {
             error: '\x1b[91m',          // Rojo brillante
             warn: '\x1b[93m',           // Amarillo brillante
             warning: '\x1b[93m',        // Amarillo brillante
@@ -40,26 +48,34 @@ export class LogFormatter {
             verbose: '\x1b[37m',        // Gris brillante
         };
 
-        const json = color[level.toLowerCase() as keyof typeof color] || color.info;
+        const color = colors[level.toLowerCase() as keyof typeof colors] || colors.info;
+        const reset = '\x1b[0m';
 
-        // Crear JSON estructurado con colores
-        const jsonData = {
+        // Crear JSON estructurado
+        const jsonData: any = {
             level: level.toUpperCase(),
             timestamp: timestamp,
-            logger: contextName,
             message: message,
             pid: process.pid
         };
 
-        // JSON coloreado simple
-        const coloredJson =
-            `${json}{${'\x1b[0m'}` +
-            `${json}"level"${'\x1b[0m'}:${json}"${jsonData.level}"${'\x1b[0m'},` +
-            `${json}"timestamp"${'\x1b[0m'}:${json}"${jsonData.timestamp}"${'\x1b[0m'},` +
-            `${json}"logger"${'\x1b[0m'}:${json}"${jsonData.logger}"${'\x1b[0m'},` +
-            `${json}"message"${'\x1b[0m'}:${json}"${jsonData.message}"${'\x1b[0m'},` +
-            `${json}"pid"${'\x1b[0m'}:${json}${jsonData.pid}${'\x1b[0m'}` +
-            `${json}}${'\x1b[0m'}`;
+        if (contextData) {
+            if (typeof contextData === 'string') {
+                jsonData.logger = contextData;
+            } else if (typeof contextData === 'object' && contextData !== null) {
+                jsonData.logger = 'Application'; // Logger default
+                Object.assign(jsonData, contextData);
+            } else {
+                jsonData.logger = 'Application';
+            }
+        } else {
+            jsonData.logger = 'Application';
+        }
+
+        const jsonString = JSON.stringify(jsonData, null, 0);
+
+        // JSON coloreado completo
+        const coloredJson = `${color}${jsonString}${reset}`;
 
         return `${coloredJson}${stackStr}`;
     }

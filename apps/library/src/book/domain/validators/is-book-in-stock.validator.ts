@@ -10,8 +10,8 @@ export class IsBookInStockValidator {
 
     private validateIsInStock(): void {
         const primitives = this.book.toPrimitives();
-        const currentQuantity = primitives.quantity;
-        if (currentQuantity === 0) {
+        const currentCopies = primitives.copies;
+        if (currentCopies === 0) {
             throw new IsBookInStockValidatorException(`The book "${primitives.name}" is out of stock.`);
         }
     }

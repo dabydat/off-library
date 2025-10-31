@@ -44,7 +44,8 @@ export class LibraryController {
     async createBook(@Body() body: CreateBookRequest): Promise<GetBookResponse> {
         return await firstValueFrom(this.libraryClient.send(LibraryControllerMap.CREATE_BOOK.MESSAGE_PATTERN, {
             ...body,
-            publicationDate: body.publication_date
+            publicationDate: body.publication_date,
+            availableCopies: body.available_copies,
         }));
     }
 }

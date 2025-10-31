@@ -1,15 +1,18 @@
-import { ExceptionFilter, Catch, Logger, Injectable } from '@nestjs/common';
+import { ExceptionFilter, Catch, Logger, Injectable, Inject } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Observable, throwError } from 'rxjs';
 import { SimpleExceptionHandler } from './services/simple-exception-handler';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 
 @Catch()
 @Injectable()
 export class RpcGlobalExceptionFilter implements ExceptionFilter {
-    private readonly logger = new Logger(RpcGlobalExceptionFilter.name);
     private readonly handler: SimpleExceptionHandler;
 
-    constructor() {
+    constructor(
+        @Inject(LOGGING_PROVIDER_TOKEN)
+        private readonly logger: LoggingProviderPort
+    ) {
         this.handler = new SimpleExceptionHandler();
     }
 

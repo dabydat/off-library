@@ -27,7 +27,7 @@ export class BookMapper {
             UtcDate.create(bookEntity.createdAt),
             UtcDate.create(bookEntity.updatedAt),
             TinyIntVO.create(bookEntity.starsCount),
-            TinyIntVO.create(bookEntity.quantity),
+            TinyIntVO.create(bookEntity.copies),
             Amount.create(bookEntity.price)
         );
     }
@@ -46,7 +46,7 @@ export class BookMapper {
             language: bookPrimitives.language,
             summary: bookPrimitives.summary,
             starsCount: bookPrimitives.starsCount,
-            quantity: bookPrimitives.quantity,
+            copies: bookPrimitives.copies,
             price: bookPrimitives.price,
         });
         return bookEntity;
@@ -68,7 +68,7 @@ export class BookMapper {
             createdAt: bookPrimitives.createdAt,
             updatedAt: bookPrimitives.updatedAt,
             starsCount: bookPrimitives.starsCount,
-            quantity: bookPrimitives.quantity,
+            availableCopies: bookPrimitives.copies,
             price: bookPrimitives.price,
         }
     }

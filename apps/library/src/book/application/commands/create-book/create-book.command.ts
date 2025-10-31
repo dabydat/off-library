@@ -10,6 +10,8 @@ export class CreateBookCommand implements ICommand {
         public readonly genre: string,
         public readonly pages: number,
         public readonly language: string,
-        public readonly summary: string
+        public readonly summary: string,
+        public readonly availableCopies: number,
+        public readonly price: number,
     ) { }
 }

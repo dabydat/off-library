@@ -45,7 +45,9 @@ export class BookController {
                 payload.genre,
                 payload.pages,
                 payload.language,
-                payload.summary
+                payload.summary,
+                payload.availableCopies,
+                payload.price,
             )
         );
 

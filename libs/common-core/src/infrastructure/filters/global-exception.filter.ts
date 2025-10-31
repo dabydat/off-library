@@ -1,8 +1,8 @@
-import { ArgumentsHost, Catch, ExceptionFilter, Injectable } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Inject, Injectable } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { SimpleExceptionHandler } from './services/simple-exception-handler';
 import { ErrorResponseType } from './filter-types/error-response.type';
-import { LoggingProviderService } from '@app/logging_provider/services/logging-provider.service';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 
 @Catch()
 @Injectable()
@@ -10,7 +10,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly handler: SimpleExceptionHandler;
 
     constructor(
-        private readonly logger: LoggingProviderService
+        @Inject(LOGGING_PROVIDER_TOKEN)
+        private readonly logger: LoggingProviderPort
     ) {
         this.handler = new SimpleExceptionHandler();
     }
@@ -29,8 +30,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             method: request.method,
             details: payload.details,
             meta: {
-                exceptionType: payload.meta?.exceptionType || this.getExceptionType(exception),
-                exceptionName: payload.meta?.exceptionName || exception?.exceptionName || exception?.name,
+                exceptionType: payload.meta?.exceptionType,
+                exceptionName: payload.meta?.exceptionName,
                 handler: this.handler.detectHandler(exception),
             },
         };
@@ -54,34 +55,31 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         return this.handler.process(exception);
     }
 
-    private getExceptionType(exception: any): string {
-        if (exception?.constructor?.name) {
-            return exception.constructor.name;
-        }
 
-        if (exception?.error?.constructor?.name) {
-            return exception.error.constructor.name;
-        }
-
-        return 'Unknown';
-    }
 
     private logError(exception: any, request: Request, httpStatus: number): void {
+        const payload = this.extractPayload(exception);
+
         const logContext = {
             path: request.url,
             method: request.method,
             statusCode: httpStatus,
+            exceptionType: payload.meta?.exceptionType,
+            exceptionName: payload.meta?.exceptionName,
+            handler: this.handler.detectHandler(exception),
+            details: payload.details,
+            stack: exception?.stack
         };
 
-        if (httpStatus >= 500) {
+        if (httpStatus >= 400) {
             this.logger.error(
                 `${request.method} ${request.url} - ${httpStatus}`,
-                exception?.stack || JSON.stringify(exception),
+                logContext
             );
-        } else if (httpStatus >= 400) {
+        } else if (httpStatus >= 300) {
             this.logger.warn(
                 `${request.method} ${request.url} - ${httpStatus}`,
-                JSON.stringify(logContext),
+                logContext
             );
         }
     }

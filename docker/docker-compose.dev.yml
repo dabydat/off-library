@@ -90,6 +90,7 @@ services:
     volumes:
       - ../apps/gateway:/app/apps/gateway
       - ../libs/common-core:/app/libs/common-core
+      - ../libs/logging_provider:/app/libs/logging_provider
     networks:
       - off_library_network
 

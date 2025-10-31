@@ -1,14 +1,14 @@
 import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 import { BOOK_TABLE_NAME } from "../entities/book.entity";
 
-export class AddQuantityPriceFieldsToBooksTable1761889063597 implements MigrationInterface {
+export class AddCopiesPriceFieldsToBooksTable1761889063597 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.addColumns(
             BOOK_TABLE_NAME,
             [
                 new TableColumn({
-                    name: 'QUANTITY',
+                    name: 'COPIES',
                     type: 'int',
                     isNullable: false,
                     default: 0,
@@ -26,7 +26,7 @@ export class AddQuantityPriceFieldsToBooksTable1761889063597 implements Migratio
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropColumn(BOOK_TABLE_NAME, 'QUANTITY');
+        await queryRunner.dropColumn(BOOK_TABLE_NAME, 'COPIES');
         await queryRunner.dropColumn(BOOK_TABLE_NAME, 'PRICE');
     }
 

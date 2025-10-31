@@ -43,8 +43,8 @@ export class BookEntity {
     @Column({ name: 'STARS_COUNT', type: "int", default: 0 })
     public starsCount: number;
 
-    @Column({ name: 'QUANTITY', type: 'int', default: 0 })
-    public quantity: number;
+    @Column({ name: 'COPIES', type: 'int', default: 0 })
+    public copies: number;
 
     @Column({ name: 'PRICE', type: 'decimal', precision: 10, scale: 2, default: 0 })
     public price: number;

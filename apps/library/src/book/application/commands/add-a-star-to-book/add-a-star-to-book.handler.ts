@@ -23,7 +23,9 @@ export class AddAStarToBookHandler implements ICommandHandler<AddAStarToBookComm
         this.logger.info(`Adding a star to book with ID: ${command.bookId}`, {
             bookId: command.bookId,
             operation: 'add-star'
-        }); bookExists.addAStarToBook();
+        });
+
+        bookExists.addAStarToBook();
         await this.bookRepositoryPort.save(bookExists);
     }
 }

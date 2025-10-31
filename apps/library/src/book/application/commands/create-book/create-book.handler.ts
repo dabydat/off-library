@@ -10,7 +10,7 @@ import { CreateBookCommand } from './create-book.command';
 import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
 import { Book, BookPrimitives } from '../../../domain/models/book';
 import { BookName } from '../../../domain/value-objects';
-import { TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
+import { Amount, TinyIntVO, UtcDate } from '@app/common-core/domain/value-objects';
 import { BookAlreadyExistsException } from '../../../domain/exceptions';
 import { AddAStarToBookEvent } from '../../../domain/events/add-a-star-to-book.event';
 import { PUBLISHER_PORT, type PublisherPort } from '../../../domain/ports/publisher.port';
@@ -41,7 +41,9 @@ export class CreateBookHandler implements ICommandHandler<CreateBookCommand> {
             TinyIntVO.create(command.pages),
             BookLanguage.create(command.language),
             BookSummary.create(command.summary),
-            TinyIntVO.create(0)
+            TinyIntVO.create(0),
+            TinyIntVO.create(command.availableCopies),
+            Amount.create(command.price),
         );
 
         newBook.validateIsPublisherIsValid();

@@ -17,7 +17,7 @@ export type BookPrimitives = {
     createdAt?: string;
     updatedAt?: string;
     starsCount: number;
-    quantity: number;
+    copies: number;
     price: number;
 };
 
@@ -36,7 +36,7 @@ export class Book extends AggregateRoot {
         private readonly createdAt?: UtcDate,
         private readonly updatedAt?: UtcDate,
         private starsCount?: TinyIntVO,
-        private quantity?: TinyIntVO,
+        private copies?: TinyIntVO,
         private price?: Amount
     ) {
         super();
@@ -57,7 +57,7 @@ export class Book extends AggregateRoot {
             createdAt: this.createdAt?.toISOString,
             updatedAt: this.updatedAt?.toISOString,
             starsCount: this.starsCount?.getValue ?? 0,
-            quantity: this.quantity?.getValue ?? 0,
+            copies: this.copies?.getValue ?? 0,
             price: this.price?.getValue ?? 0,
         };
     }
@@ -71,10 +71,10 @@ export class Book extends AggregateRoot {
         genre: BookGenre,
         pages: TinyIntVO,
         language: BookLanguage,
-        summary?: BookSummary,
-        starsCount?: TinyIntVO,
-        quantity?: TinyIntVO,
-        price?: Amount
+        summary: BookSummary,
+        starsCount: TinyIntVO,
+        copies: TinyIntVO,
+        price: Amount
     ): Book {
         return new Book(
             Uuid.create(),
@@ -90,7 +90,7 @@ export class Book extends AggregateRoot {
             UtcDate.now(),
             UtcDate.now(),
             starsCount,
-            quantity,
+            copies,
             price
         );
     }
@@ -105,9 +105,9 @@ export class Book extends AggregateRoot {
 
     public buyBook(): void {
         this.validateIsInStock();
-        const currentQuantity = this.quantity?.getValue ?? 0;
-        const newQuantity = Math.max(currentQuantity - 1, 0);
-        this.quantity = TinyIntVO.create(newQuantity);
+        const currentCopies = this.copies?.getValue ?? 0;
+        const newCopies = Math.max(currentCopies - 1, 0);
+        this.copies = TinyIntVO.create(newCopies);
     }
 
     public validateIsInStock(): void {
