@@ -1,8 +1,8 @@
-import { LoggingProviderService } from '@app/logging_provider';
-import { ArgumentsHost, Catch, ExceptionFilter, Logger, Injectable } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Injectable } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { SimpleExceptionHandler } from './services/simple-exception-handler';
 import { ErrorResponseType } from './filter-types/error-response.type';
+import { LoggingProviderService } from '@app/logging_provider/services/logging-provider.service';
 
 @Catch()
 @Injectable()

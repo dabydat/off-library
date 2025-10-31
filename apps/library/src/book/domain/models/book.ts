@@ -1,7 +1,7 @@
 import { AggregateRoot } from "@nestjs/cqrs";
 import { BookAuthor, BookGenre, BookGenreEnum, BookISBN, BookLanguage, BookLanguageEnum, BookName, BookPublisher, BookSummary } from "../value-objects";
-import { TinyIntVO, UtcDate, Uuid } from "@app/common-core/domain/value-objects";
-import { IsPublisherValidValidator } from "../validators/publisher-is-valid.validator";
+import { Amount, TinyIntVO, UtcDate, Uuid } from "@app/common-core/domain/value-objects";
+import { IsBookInStockValidator, IsPublisherValidValidator } from "../validators";
 
 export type BookPrimitives = {
     id: string;
@@ -17,6 +17,8 @@ export type BookPrimitives = {
     createdAt?: string;
     updatedAt?: string;
     starsCount: number;
+    quantity: number;
+    price: number;
 };
 
 export class Book extends AggregateRoot {
@@ -33,7 +35,9 @@ export class Book extends AggregateRoot {
         private readonly summary?: BookSummary,
         private readonly createdAt?: UtcDate,
         private readonly updatedAt?: UtcDate,
-        private starsCount?: TinyIntVO
+        private starsCount?: TinyIntVO,
+        private quantity?: TinyIntVO,
+        private price?: Amount
     ) {
         super();
     }
@@ -53,6 +57,8 @@ export class Book extends AggregateRoot {
             createdAt: this.createdAt?.toISOString,
             updatedAt: this.updatedAt?.toISOString,
             starsCount: this.starsCount?.getValue ?? 0,
+            quantity: this.quantity?.getValue ?? 0,
+            price: this.price?.getValue ?? 0,
         };
     }
 
@@ -66,7 +72,9 @@ export class Book extends AggregateRoot {
         pages: TinyIntVO,
         language: BookLanguage,
         summary?: BookSummary,
-        starsCount?: TinyIntVO
+        starsCount?: TinyIntVO,
+        quantity?: TinyIntVO,
+        price?: Amount
     ): Book {
         return new Book(
             Uuid.create(),
@@ -81,7 +89,9 @@ export class Book extends AggregateRoot {
             summary,
             UtcDate.now(),
             UtcDate.now(),
-            starsCount
+            starsCount,
+            quantity,
+            price
         );
     }
 
@@ -91,5 +101,16 @@ export class Book extends AggregateRoot {
 
     public addAStarToBook(): void {
         this.starsCount = TinyIntVO.create((this.starsCount?.getValue ?? 0) + 1);
+    }
+
+    public buyBook(): void {
+        this.validateIsInStock();
+        const currentQuantity = this.quantity?.getValue ?? 0;
+        const newQuantity = Math.max(currentQuantity - 1, 0);
+        this.quantity = TinyIntVO.create(newQuantity);
+    }
+
+    public validateIsInStock(): void {
+        new IsBookInStockValidator(this).validate();
     }
 }

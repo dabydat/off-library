@@ -1,5 +1,5 @@
 
-import { TinyIntVO, UtcDate, Uuid } from '@app/common-core/domain/value-objects';
+import { Amount, TinyIntVO, UtcDate, Uuid } from '@app/common-core/domain/value-objects';
 import { Book } from '../../domain/models/book';
 import { BookEntity } from '../persistence/entities/book.entity';
 import { BookAuthor, BookGenre, BookISBN, BookLanguage, BookName, BookPublisher, BookSummary } from '../../domain/value-objects';
@@ -26,7 +26,9 @@ export class BookMapper {
             bookEntity.summary ? BookSummary.create(bookEntity.summary) : undefined,
             UtcDate.create(bookEntity.createdAt),
             UtcDate.create(bookEntity.updatedAt),
-            TinyIntVO.create(bookEntity.starsCount)
+            TinyIntVO.create(bookEntity.starsCount),
+            TinyIntVO.create(bookEntity.quantity),
+            Amount.create(bookEntity.price)
         );
     }
 
@@ -44,6 +46,8 @@ export class BookMapper {
             language: bookPrimitives.language,
             summary: bookPrimitives.summary,
             starsCount: bookPrimitives.starsCount,
+            quantity: bookPrimitives.quantity,
+            price: bookPrimitives.price,
         });
         return bookEntity;
     }
@@ -64,6 +68,8 @@ export class BookMapper {
             createdAt: bookPrimitives.createdAt,
             updatedAt: bookPrimitives.updatedAt,
             starsCount: bookPrimitives.starsCount,
+            quantity: bookPrimitives.quantity,
+            price: bookPrimitives.price,
         }
     }
 }

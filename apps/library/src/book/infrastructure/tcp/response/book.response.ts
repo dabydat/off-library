@@ -13,5 +13,7 @@ export class BookResponse {
         public readonly createdAt?: string,
         public readonly updatedAt?: string,
         public readonly starsCount?: number,
+        public readonly quantity?: number,
+        public readonly price?: number,
     ) { }
 }
