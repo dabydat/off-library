@@ -7,6 +7,13 @@ import { LoggerFactory } from './factories';
 @Global()
 @Module({})
 export class LoggingProviderCoreModule {
+    /**
+     * Configuración síncrona del módulo de logging
+     * El módulo es @Global() para que esté disponible en toda la aplicación sin necesidad de re-importarlo
+     * 
+     * IMPORTANTE: Solo debe importarse UNA VEZ en el módulo raíz de la aplicación
+     * para evitar duplicación de logs
+     */
     public static forRoot(options: WinstonOptions): DynamicModule {
         return {
             module: LoggingProviderCoreModule,
@@ -24,6 +31,25 @@ export class LoggingProviderCoreModule {
         };
     }
 
+    /**
+     * Configuración asíncrona del módulo de logging
+     * Permite cargar opciones desde ConfigService u otros proveedores
+     * 
+     * IMPORTANTE: Solo debe importarse UNA VEZ en el módulo raíz de la aplicación
+     * para evitar duplicación de logs. El decorador @Global() asegura que esté
+     * disponible en toda la app sin necesidad de re-importarlo en módulos hijos.
+     * 
+     * @example
+     * // En el módulo raíz (AppModule, LibraryModule, GatewayModule)
+     * LoggingProviderModule.forRootAsync({
+     *   imports: [ConfigModule],
+     *   inject: [ConfigService],
+     *   useFactory: (config: ConfigService) => ({
+     *     level: config.get('LOG_LEVEL', 'info'),
+     *     transports: [new winston.transports.Console()]
+     *   })
+     * })
+     */
     public static forRootAsync(options: LoggingProviderAsyncOptions): DynamicModule {
         if (!options.useFactory && !options.useClass && !options.useExisting) {
             throw new Error('useFactory, useClass or useExisting is required for forRootAsync');
