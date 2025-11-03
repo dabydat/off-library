@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { AddAStarToBookCommand } from './add-a-star-to-book.command';
-import { BOOK_REPOSITORY, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
+import { BOOK_REPOSITORY_PORT, type BookRepositoryPort } from '../../../domain/ports/book-repository.port';
 import { Uuid } from '@app/common-core/domain/value-objects';
 import { BookNotFoundException } from '../../../domain/exceptions';
 import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
@@ -9,7 +9,7 @@ import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_p
 @CommandHandler(AddAStarToBookCommand)
 export class AddAStarToBookHandler implements ICommandHandler<AddAStarToBookCommand> {
     constructor(
-        @Inject(BOOK_REPOSITORY)
+        @Inject(BOOK_REPOSITORY_PORT)
         private readonly bookRepositoryPort: BookRepositoryPort,
         @Inject(LOGGING_PROVIDER_TOKEN)
         private readonly logger: LoggingProviderPort,
@@ -23,7 +23,9 @@ export class AddAStarToBookHandler implements ICommandHandler<AddAStarToBookComm
         this.logger.info(`Adding a star to book with ID: ${command.bookId}`, {
             bookId: command.bookId,
             operation: 'add-star'
-        }); bookExists.addAStarToBook();
+        });
+
+        bookExists.addAStarToBook();
         await this.bookRepositoryPort.save(bookExists);
     }
 }

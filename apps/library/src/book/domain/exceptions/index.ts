@@ -8,3 +8,4 @@ export { BookSummaryException } from './book-summary.exception';
 export { IsPublisherValidValidatorException } from './is-publisher-valid-validator.exception';
 export { BookAlreadyExistsException } from './book-already-exists.exception';
 export { BookNotFoundException } from './book-not-found.exception';
+export { IsBookInStockValidatorException } from './is-book-in-stock-validator.exception';

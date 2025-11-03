@@ -43,6 +43,12 @@ export class BookEntity {
     @Column({ name: 'STARS_COUNT', type: "int", default: 0 })
     public starsCount: number;
 
+    @Column({ name: 'COPIES', type: 'int', default: 0 })
+    public copies: number;
+
+    @Column({ name: 'PRICE', type: 'decimal', precision: 10, scale: 2, default: 0 })
+    public price: number;
+
     constructor(entity: Partial<BookEntity>) {
         Object.assign(this, entity);
     }

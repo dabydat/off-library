@@ -16,4 +16,13 @@ export const configValidation = Joi.object<ConfigSchema>({
   DATABASE_LOG_QUERIES: Joi.boolean().required(),
   DATABASE_SYNCHRONIZE: Joi.boolean().required(),
   DATABASE_ENCRYPTION_KEY: Joi.string().required(),
+
+  FACTUS_URL_API: Joi.string().uri().required(),
+  FACTUS_USERNAME: Joi.string().required(),
+  FACTUS_PASSWORD: Joi.string().required(),
+  FACTUS_CLIENT_ID: Joi.string().required(),
+  FACTUS_CLIENT_SECRET: Joi.string().required(),
+
+  CACHE_HOST: Joi.string().required(),
+  CACHE_PORT: Joi.number().required(),
 });

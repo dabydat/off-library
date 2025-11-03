@@ -8,6 +8,8 @@ export class CreateBookRequest {
         public genre: string,
         public pages: number,
         public language: string,
-        public summary: string
+        public summary: string,
+        public availableCopies: number,
+        public price: number,
     ) { }
 }

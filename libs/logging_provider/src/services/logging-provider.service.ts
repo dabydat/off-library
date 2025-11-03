@@ -8,22 +8,22 @@ export class LoggingProviderService implements LoggingProviderPort {
     constructor(@Inject(WINSTON_LOGGER_TOKEN) private readonly logger: winston.Logger) { }
 
     error(message: string, context?: any): void {
-        this.logger.error(message, context);
+        this.logger.error(message, { context });
     }
 
     warn(message: string, context?: any): void {
-        this.logger.warn(message, context);
+        this.logger.warn(message, { context });
     }
 
     info(message: string, context?: any): void {
-        this.logger.info(message, context);
+        this.logger.info(message, { context });
     }
 
     debug(message: string, context?: any): void {
-        this.logger.debug(message, context);
+        this.logger.debug(message, { context });
     }
 
     log(level: string, message: string, context?: any): void {
-        this.logger.log(level, message, context);
+        this.logger.log(level, message, { context });
     }
 }

@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
-import { QUEUE_SERVICE, type QueueService } from '@app/common-core/domain/services/queue.service';
+import { QUEUE_SERVICE_PORT, type QueueService } from '@app/common-core/domain/services/queue.service';
 import { KafkaTopicConstant } from '@app/common-core/infrastructure/constants/kafka-topic.constant';
 import { AddAStarToBookMessage } from '@app/common-core/infrastructure/message/add-a-star-to-book.message';
 import { KafkaGroupsConstant } from '@app/common-core/infrastructure/constants/kafka-groups.constant';
@@ -12,7 +12,7 @@ export class BookEventConsumerService implements OnModuleInit {
   constructor(
     private readonly configService: ConfigService,
     private readonly commandBus: CommandBus,
-    @Inject(QUEUE_SERVICE)
+    @Inject(QUEUE_SERVICE_PORT)
     private readonly queueService: QueueService,
   ) { }
 

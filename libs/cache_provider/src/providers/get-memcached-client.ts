@@ -6,9 +6,9 @@ interface MemcachedClientProps {
 }
 
 const DEFAULT_MEMCACHED_CONFIG = {
-  timeout: 1000,
-  retries: 1,
-  retry: 1000,
+  timeout: 5000,
+  retries: 5,
+  retry: 3000,
   remove: true,
   maxKeySize: 250,
   maxExpiration: 2592000,

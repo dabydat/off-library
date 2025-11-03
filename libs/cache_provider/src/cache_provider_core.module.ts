@@ -7,11 +7,12 @@ import {
 import {
   CACHE_PROVIDER_MODULE_TOKEN,
   MEMCACHED_CLIENT_TOKEN,
+  CACHE_PROVIDER_SERVICE_TOKEN,
 } from './constants';
 import { getMemcachedClient } from './providers';
 import {
   MemcachedService,
-  CacheOperationWrapper
+  CacheOperationWrapper,
 } from './services';
 
 @Global()
@@ -26,9 +27,16 @@ export class CacheProviderCoreModule {
           useValue: getMemcachedClient({ host: options.host }),
         },
         MemcachedService,
+        {
+          provide: CACHE_PROVIDER_SERVICE_TOKEN,
+          useExisting: MemcachedService,
+        },
         CacheOperationWrapper,
       ],
-      exports: [MemcachedService],
+      exports: [
+        MEMCACHED_CLIENT_TOKEN,
+        CACHE_PROVIDER_SERVICE_TOKEN,
+      ],
     };
   }
 
@@ -47,9 +55,16 @@ export class CacheProviderCoreModule {
             getMemcachedClient({ host: cacheOptions.host }),
         },
         MemcachedService,
+        {
+          provide: CACHE_PROVIDER_SERVICE_TOKEN,
+          useExisting: MemcachedService,
+        },
         CacheOperationWrapper,
       ],
-      exports: [MemcachedService],
+      exports: [
+        MEMCACHED_CLIENT_TOKEN,
+        CACHE_PROVIDER_SERVICE_TOKEN,
+      ],
     };
   }
 

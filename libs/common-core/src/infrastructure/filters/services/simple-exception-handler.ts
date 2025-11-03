@@ -56,12 +56,14 @@ export class SimpleExceptionHandler {
     }
 
     private extractMessage(exception: any): string {
-        return exception?.error?.message ||
+        const rawMessage = exception?.error?.message ||
             this.getFromRpc(exception, 'message') ||
             exception?.message ||
             this.getFromResponse(exception) ||
             (typeof exception === 'string' ? exception : null) ||
             'Internal server error';
+
+        return this.sanitizeMessage(rawMessage);
     }
 
     private extractType(exception: any): string {
@@ -124,6 +126,6 @@ export class SimpleExceptionHandler {
             }
         }
 
-        return message;
+        return message.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
     }
 }

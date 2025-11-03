@@ -47,8 +47,18 @@ export class CreateBookRequest {
     @IsEnum(BookLanguageEnum)
     language: BookLanguageEnum;
 
-    @ApiPropertyOptional({ example: 'A novel set in the Roaring Twenties...', description: 'Summary or description of the book' })
-    @IsOptional()
+    @ApiProperty({ example: 'A novel set in the Roaring Twenties...', description: 'Summary or description of the book' })
     @IsString()
-    summary?: string;
+    summary: string;
+
+
+    @ApiProperty({ example: 2, description: 'Quantity of copies available' })
+    @IsNumber({}, { message: 'available_copies must be a number' })
+    @IsPositive()
+    available_copies: number;
+
+    @ApiProperty({ example: 5, description: 'Price of the book' })
+    @IsNumber({}, { message: 'price must be a number' })
+    @IsPositive()
+    price: number;
 }

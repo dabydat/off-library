@@ -1,14 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import Memcached = require('memcached');
 import { MEMCACHED_CLIENT_TOKEN } from '../constants';
-import { CacheProvider } from '../interfaces/services/cache.provider';
 import { GetCacheRequest, GetCacheResponse, SetCacheRequest, SetCacheResponse, DeleteCacheRequest, DeleteCacheResponse, IncrementCacheRequest, IncrementCacheResponse, DecrementCacheRequest, DecrementCacheResponse, FlushCacheResponse } from '@app/cache_provider/interfaces';
 import { CacheOperationWrapper } from './cache-operation-wrapper.service';
-import { LOGGING_PROVIDER_TOKEN } from '../../../logging_provider/src';
-import type { LoggingProviderPort } from '../../../logging_provider/src';
+import { CacheProviderPort } from '../interfaces/services/cache-provider.port';
+import { LOGGING_PROVIDER_TOKEN, type LoggingProviderPort } from '@app/logging_provider';
 
 @Injectable()
-export class MemcachedService implements CacheProvider {
+export class MemcachedService implements CacheProviderPort {
   constructor(
     @Inject(MEMCACHED_CLIENT_TOKEN) private readonly memcachedClient: Memcached,
     private readonly operationWrapper: CacheOperationWrapper,
@@ -92,5 +91,59 @@ export class MemcachedService implements CacheProvider {
         );
       })
     );
+  }
+
+  async getMulti(keys: string[]): Promise<Record<string, any>> {
+    if (!keys || keys.length === 0) {
+      return {};
+    }
+
+    // Validar todas las keys antes de la operación
+    for (const key of keys) {
+      this.operationWrapper['validateKey'](key);
+    }
+
+    return new Promise((resolve, reject) => {
+      this.memcachedClient.getMulti(keys, (err, data) => {
+        if (err) {
+          this.logger.error('getMulti failed', { keys, error: err.message });
+          return reject(err);
+        }
+
+        this.logger.info('getMulti completed', {
+          requestedKeys: keys.length,
+          foundKeys: Object.keys(data || {}).length
+        });
+
+        resolve(data || {});
+      });
+    });
+  }
+
+  async setMulti(items: Array<{ key: string; value: any; ttl?: number }>): Promise<{ success: boolean }> {
+    if (!items || items.length === 0) {
+      return { success: true };
+    }
+
+    try {
+      const promises = items.map(item =>
+        this.set({
+          key: item.key,
+          value: item.value,
+          ttl: item.ttl
+        })
+      );
+
+      await Promise.all(promises);
+
+      this.logger.info('setMulti completed', { itemsCount: items.length });
+      return { success: true };
+    } catch (error) {
+      this.logger.error('setMulti failed', {
+        itemsCount: items.length,
+        error: error.message
+      });
+      throw error;
+    }
   }
 }

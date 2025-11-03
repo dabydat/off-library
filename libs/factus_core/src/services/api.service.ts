@@ -1,20 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import assert from 'assert';
 import { FACTUS_TOKEN } from '../constants';
 import { type FactusOptions } from '../interfaces';
 import { InvalidRequestException, NotFoundRequestException, UnhandledApiStatusException, BadGatewayException, ForbiddenException, GatewayTimeoutException, GoneException, ServiceUnavailableException, UnauthorizedException, ApplicationException } from '../exceptions';
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { AuthFactus } from '../models/auth/auth.factus';
-import { GrantType } from '../enums/grand-type.enum';
-import { type CacheProvider, MEMCACHED_CLIENT_TOKEN } from '@app/cache_provider';
-import { TokenService } from '../utils/token.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class ApiService {
-    private readonly options: FactusOptions;
-
     private readonly exceptionMap: Record<
         string,
         new (message: string, errorCode: string, details: string[]) => ApplicationException
@@ -32,21 +26,20 @@ export class ApiService {
     constructor(
         private readonly httpService: HttpService,
         @Inject(FACTUS_TOKEN) options: FactusOptions,
-        @Inject(MEMCACHED_CLIENT_TOKEN) private readonly cacheClient: CacheProvider,
-        private readonly tokenService: TokenService
+        private readonly authService: AuthService,
     ) {
-        this.options = options;
-        assert(this.options.url, 'URL must be defined');
-        assert(this.options.grantType, 'Grant type must be defined');
-        assert(this.options.clientId, 'Client ID must be defined');
-        assert(this.options.clientSecret, 'Client secret must be defined');
-        assert(this.options.username, 'Username must be defined');
-        assert(this.options.password, 'Password must be defined');
+
+        // Validar opciones requeridas
+        if (!options.url) throw new Error('URL must be defined');
+        if (!options.clientId) throw new Error('Client ID must be defined');
+        if (!options.clientSecret) throw new Error('Client secret must be defined');
+        if (!options.username) throw new Error('Username must be defined');
+        if (!options.password) throw new Error('Password must be defined');
 
         this.httpService.axiosRef.interceptors.request.use(
             async (config: InternalAxiosRequestConfig) => {
-                const token = await this.fetchToken();
-                config.baseURL = this.options.url;
+                const token = await this.authService.fetchToken();
+                config.baseURL = options.url;
                 config.headers['Authorization'] = `Bearer ${token.access_token}`;
                 return config;
             },
@@ -54,77 +47,6 @@ export class ApiService {
         );
 
         this.httpService.axiosRef.interceptors.response.use((responseConfig: AxiosResponse): AxiosResponse<any, any> => responseConfig);
-    }
-
-    private async fetchToken(): Promise<AuthFactus> {
-        // 1. Verificar si hay token válido en cache
-        const cachedToken = await this.tokenService.getValidTokenFromCache();
-        if (cachedToken) return cachedToken;
-
-        // 2. Intentar refresh token si existe
-        const refreshCached = await this.cacheClient.get({ key: 'factus_refresh_token' });
-        if (refreshCached.exists) {
-            try {
-                const refreshedToken = await this.refreshToken(refreshCached.value as string);
-                await this.tokenService.saveTokenWithMetadata(refreshedToken);
-                return refreshedToken;
-            } catch (error) {
-                // Refresh falló, limpiar refresh token
-                await this.cacheClient.delete({ key: 'factus_refresh_token' });
-            }
-        }
-
-        // 3. Login completo como último recurso
-        const response = await fetch(`${this.options.url}/oauth/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                grant_type: GrantType.PASSWORD,
-                client_id: this.options.clientId,
-                client_secret: this.options.clientSecret,
-                username: this.options.username,
-                password: this.options.password,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Login failed: ${response.status} ${response.statusText}`);
-        }
-
-        const tokenData: AuthFactus = await response.json();
-
-        // Guardar token con metadata
-        await this.tokenService.saveTokenWithMetadata(tokenData);
-
-        // Guardar refresh token si existe (con TTL más largo)
-        if (tokenData.refresh_token) {
-            await this.cacheClient.set({
-                key: 'factus_refresh_token',
-                value: tokenData.refresh_token,
-                ttl: 3600,
-            });
-        }
-
-        return tokenData;
-    }
-
-    private async refreshToken(refreshToken: string): Promise<AuthFactus> {
-        const response = await fetch(`${this.options.url}/oauth/token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                grant_type: GrantType.REFRESH_TOKEN,
-                client_id: this.options.clientId,
-                client_secret: this.options.clientSecret,
-                refresh_token: refreshToken,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Refresh token failed: ${response.status}`);
-        }
-
-        return await response.json();
     }
 
     private handleApiError(errorCode: string, message: string, details: string[]): void {

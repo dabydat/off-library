@@ -16,7 +16,7 @@ RUN npm install -g @nestjs/cli
 ARG PORT=8000
 EXPOSE ${PORT}
 
-CMD ["nodemon", "--delay", "2", "--watch", "apps/gateway", "--watch", "libs/common-core", "--ext", "ts,js,json", "--exec", "nest", "start", "gateway"]
+CMD ["nodemon", "--delay", "2", "--watch", "apps/gateway", "--watch", "libs/common-core", "--watch", "libs/logging_provider", "--ext", "ts,js,json", "--exec", "nest", "start", "gateway"]
 
 FROM node:${NODE_VERSION} AS builder
 
@@ -31,6 +31,7 @@ RUN npm install
 
 COPY apps/gateway ./apps/gateway
 COPY libs/common-core ./libs/common-core
+COPY libs/logging_provider ./libs/logging_provider
 
 RUN npm run build gateway
 
