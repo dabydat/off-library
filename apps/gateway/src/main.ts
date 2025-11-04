@@ -13,9 +13,11 @@ async function bootstrap() {
 
   app.enableCors();
 
-  app.enableVersioning(
-    { type: VersioningType.HEADER, header: 'X-API-VERSION', defaultVersion: UriVersion.V1 }
-  ).setGlobalPrefix(API_PREFIX);
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: UriVersion.V1,
+  }).setGlobalPrefix(API_PREFIX);
 
   const port: number | undefined = configService.get<number | undefined>('api.port');
   const serverUrl: string | undefined = configService.get<string | undefined>('api.server');
