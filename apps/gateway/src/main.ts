@@ -12,8 +12,6 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
 
   app.enableCors();
-
-
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: UriVersion.V1,
